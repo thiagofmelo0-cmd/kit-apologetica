@@ -1,0 +1,1242 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#1E3A5F" />
+  <title>Kit de Apologética Jovem</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700;1,600&family=Lato:wght@300;400;700&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --blue: #1E3A5F; --blue-mid: #2B5BA8; --blue-light: #EAF2FB;
+      --gold: #C9A84C; --gold-light: #FEF9EF; --gold-pale: #FDF6E3;
+      --cream: #FAFAF7; --white: #FFFFFF; --dark: #1A1A2E;
+      --gray: #6B7280; --gray-light: #F3F4F6; --border: #E5E7EB;
+      --red: #B03A2E; --green: #2E8B57; --purple: #6B3FA0;
+      --locked: #9CA3AF;
+      --radius: 12px; --radius-lg: 20px;
+      --shadow: 0 4px 24px rgba(30,58,95,.10);
+      --shadow-lg: 0 8px 40px rgba(30,58,95,.15);
+    }
+    html { scroll-behavior: smooth; }
+    body { font-family: 'Lato', sans-serif; background: var(--cream); color: var(--dark); min-height: 100vh; line-height: 1.6; }
+    .screen { display: none; min-height: 100vh; flex-direction: column; }
+    .screen.active { display: flex; }
+
+    /* TOAST */
+    .toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(80px); background: var(--dark); color: #fff; padding: 14px 24px; border-radius: 100px; font-size: 14px; font-weight: 700; z-index: 9999; transition: transform .3s cubic-bezier(.4,0,.2,1); white-space: nowrap; pointer-events: none; max-width: 90vw; text-align: center; }
+    .toast.show { transform: translateX(-50%) translateY(0); }
+
+    /* MODAL */
+    .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.5); z-index: 1000; align-items: center; justify-content: center; padding: 20px; }
+    .modal-overlay.open { display: flex; }
+    .modal-box { background: var(--white); border-radius: var(--radius-lg); padding: 32px; max-width: 500px; width: 100%; max-height: 82vh; overflow-y: auto; position: relative; }
+    .modal-close { position: absolute; top: 16px; right: 16px; background: var(--gray-light); border: none; border-radius: 50%; width: 32px; height: 32px; cursor: pointer; font-size: 18px; display: flex; align-items: center; justify-content: center; color: var(--gray); }
+    .modal-title { font-family: 'Playfair Display', serif; font-size: 22px; color: var(--blue); margin-bottom: 6px; }
+    .modal-subtitle { font-size: 14px; color: var(--gray); margin-bottom: 24px; }
+
+    /* BUTTONS */
+    .btn-primary { width: 100%; padding: 16px; background: linear-gradient(135deg, var(--blue), var(--blue-mid)); color: #fff; border: none; border-radius: var(--radius); font-family: 'Lato', sans-serif; font-size: 16px; font-weight: 700; cursor: pointer; transition: transform .15s, box-shadow .15s; letter-spacing: .02em; }
+    .btn-primary:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(30,58,95,.25); }
+    .btn-primary:disabled { opacity: .45; cursor: not-allowed; }
+
+    /* HEADER */
+    .site-header { background: var(--white); border-bottom: 1px solid var(--border); padding: 0 20px; position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 12px rgba(30,58,95,.06); }
+    .header-inner { max-width: 820px; margin: 0 auto; height: 64px; display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+    .header-brand { font-family: 'Playfair Display', serif; font-size: 17px; color: var(--blue); flex-shrink: 0; }
+    .header-brand span { color: var(--gold); }
+    .header-right { display: flex; align-items: center; gap: 8px; }
+    .user-pill { display: flex; align-items: center; gap: 6px; background: var(--blue-light); border-radius: 100px; padding: 5px 12px 5px 5px; cursor: pointer; transition: background .2s; }
+    .user-pill:hover { background: #D6E8F7; }
+    .user-avatar { width: 28px; height: 28px; background: linear-gradient(135deg, var(--blue), var(--blue-mid)); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; color: #fff; flex-shrink: 0; }
+    .user-name-pill { font-size: 13px; font-weight: 700; color: var(--blue); }
+    .streak-badge { display: flex; align-items: center; background: var(--gold-light); border: 1px solid rgba(201,168,76,.3); border-radius: 100px; padding: 5px 12px; }
+    .streak-badge span { font-size: 13px; font-weight: 700; color: var(--gold); }
+
+    /* ══════ WELCOME ══════ */
+    #screen-welcome { align-items: center; justify-content: center; padding: 24px 16px; background: radial-gradient(ellipse at 20% 0%, rgba(201,168,76,.12) 0%, transparent 60%), radial-gradient(ellipse at 80% 100%, rgba(43,91,168,.10) 0%, transparent 60%), var(--cream); }
+    .welcome-card { background: var(--white); border-radius: var(--radius-lg); box-shadow: var(--shadow-lg); padding: 44px 36px 36px; max-width: 440px; width: 100%; position: relative; overflow: hidden; }
+    .welcome-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 5px; background: linear-gradient(90deg, var(--blue), var(--gold)); }
+    .brand-badge { display: inline-flex; align-items: center; background: var(--blue-light); border: 1px solid rgba(43,91,168,.2); border-radius: 100px; padding: 6px 14px; margin-bottom: 22px; }
+    .brand-badge span { font-size: 11px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--blue-mid); }
+    .welcome-title { font-family: 'Playfair Display', serif; font-size: 28px; color: var(--blue); line-height: 1.2; margin-bottom: 10px; }
+    .welcome-subtitle { font-size: 14px; color: var(--gray); margin-bottom: 28px; line-height: 1.5; }
+    .form-group { margin-bottom: 18px; }
+    .form-label { display: block; font-size: 12px; font-weight: 700; color: var(--blue); letter-spacing: .05em; text-transform: uppercase; margin-bottom: 8px; }
+    .form-input { width: 100%; padding: 13px 15px; border: 2px solid var(--border); border-radius: var(--radius); font-family: 'Lato', sans-serif; font-size: 16px; color: var(--dark); background: var(--white); transition: border-color .2s; }
+    .form-input:focus { outline: none; border-color: var(--blue-mid); }
+    .age-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 7px; }
+    .age-btn { padding: 11px 0; border: 2px solid var(--border); border-radius: var(--radius); background: var(--white); font-family: 'Lato', sans-serif; font-size: 14px; font-weight: 700; color: var(--gray); cursor: pointer; transition: all .2s; }
+    .age-btn:hover { border-color: var(--blue-mid); color: var(--blue-mid); }
+    .age-btn.selected { border-color: var(--blue); background: var(--blue); color: #fff; }
+    .verse-footer { margin-top: 22px; padding-top: 18px; border-top: 1px solid var(--border); text-align: center; }
+    .verse-footer p { font-family: 'Playfair Display', serif; font-style: italic; font-size: 13px; color: var(--gray); line-height: 1.6; }
+    .verse-footer cite { display: block; font-style: normal; font-family: 'Lato', sans-serif; font-size: 11px; font-weight: 700; color: var(--gold); letter-spacing: .06em; text-transform: uppercase; margin-top: 6px; }
+
+    /* ══════ QUIZ ══════ */
+    #screen-quiz { align-items: center; justify-content: center; padding: 24px 16px; background: var(--cream); }
+    .quiz-card { background: var(--white); border-radius: var(--radius-lg); box-shadow: var(--shadow-lg); padding: 36px; max-width: 500px; width: 100%; }
+    .quiz-progress { display: flex; gap: 6px; margin-bottom: 26px; }
+    .quiz-dot { flex: 1; height: 4px; border-radius: 100px; background: var(--border); transition: background .3s; }
+    .quiz-dot.active { background: var(--blue-mid); }
+    .quiz-dot.done { background: var(--gold); }
+    .quiz-q { font-family: 'Playfair Display', serif; font-size: 21px; color: var(--blue); margin-bottom: 6px; line-height: 1.3; }
+    .quiz-sub { font-size: 14px; color: var(--gray); margin-bottom: 22px; }
+    .quiz-options { display: grid; gap: 9px; }
+    .quiz-opt { padding: 15px 17px; border: 2px solid var(--border); border-radius: var(--radius); background: var(--white); font-family: 'Lato', sans-serif; font-size: 15px; color: var(--dark); cursor: pointer; transition: all .2s; text-align: left; line-height: 1.4; }
+    .quiz-opt:hover { border-color: var(--blue-mid); background: var(--blue-light); }
+    .quiz-opt.selected { border-color: var(--blue); background: var(--blue); color: #fff; }
+
+    /* ══════ HOME ══════ */
+    .home-hero { background: linear-gradient(135deg, var(--blue) 0%, var(--blue-mid) 100%); padding: 36px 20px; position: relative; overflow: hidden; }
+    .home-hero::after { content: '✦'; position: absolute; right: -20px; bottom: -30px; font-size: 160px; color: rgba(255,255,255,.04); pointer-events: none; }
+    .hero-inner { max-width: 820px; margin: 0 auto; }
+    .hero-greeting { font-size: 12px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--gold); margin-bottom: 8px; }
+    .hero-title { font-family: 'Playfair Display', serif; font-size: clamp(20px,4vw,32px); color: #fff; line-height: 1.25; margin-bottom: 8px; }
+    .hero-desc { font-size: 14px; color: rgba(255,255,255,.75); max-width: 500px; line-height: 1.6; }
+
+    /* STATS */
+    .stats-row { max-width: 820px; margin: 20px auto 0; padding: 0 20px; display: grid; grid-template-columns: repeat(3,1fr); gap: 10px; }
+    .stat-card { background: var(--white); border: 1px solid var(--border); border-radius: var(--radius); padding: 14px; text-align: center; }
+    .stat-num { font-family: 'Playfair Display', serif; font-size: 26px; color: var(--blue); font-weight: 700; }
+    .stat-label { font-size: 11px; color: var(--gray); margin-top: 2px; font-weight: 700; text-transform: uppercase; letter-spacing: .04em; }
+
+    /* PROGRESS */
+    .progress-section { max-width: 820px; margin: 20px auto 0; padding: 0 20px; }
+    .progress-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
+    .progress-label { font-size: 11px; font-weight: 700; color: var(--gray); letter-spacing: .05em; text-transform: uppercase; }
+    .progress-count { font-size: 12px; font-weight: 700; color: var(--blue-mid); }
+    .progress-bar-wrap { height: 7px; background: var(--border); border-radius: 100px; overflow: hidden; }
+    .progress-bar-fill { height: 100%; background: linear-gradient(90deg, var(--blue), var(--gold)); border-radius: 100px; transition: width .5s cubic-bezier(.4,0,.2,1); }
+
+    /* NEXT UNLOCK banner */
+    .unlock-banner { max-width: 820px; margin: 16px auto 0; padding: 0 20px; }
+    .unlock-card { background: var(--white); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 14px 18px; display: flex; align-items: center; gap: 14px; }
+    .unlock-icon { font-size: 22px; flex-shrink: 0; }
+    .unlock-body { flex: 1; min-width: 0; }
+    .unlock-label { font-size: 11px; font-weight: 700; letter-spacing: .07em; text-transform: uppercase; color: var(--gray); margin-bottom: 2px; }
+    .unlock-text { font-size: 14px; color: var(--blue); font-weight: 700; line-height: 1.3; }
+    .unlock-sub { font-size: 12px; color: var(--gray); margin-top: 2px; }
+
+    /* SITUATIONS GRID */
+    .situations-section { max-width: 820px; margin: 0 auto; padding: 24px 20px 16px; }
+    .section-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; flex-wrap: wrap; gap: 10px; }
+    .section-title { font-family: 'Playfair Display', serif; font-size: 20px; color: var(--blue); }
+    .search-box { display: flex; align-items: center; gap: 7px; background: var(--white); border: 2px solid var(--border); border-radius: 100px; padding: 7px 14px; transition: border-color .2s; }
+    .search-box:focus-within { border-color: var(--blue-mid); }
+    .search-box input { border: none; outline: none; font-family: 'Lato', sans-serif; font-size: 13px; color: var(--dark); background: transparent; width: 120px; }
+    .situations-grid { display: grid; gap: 11px; }
+
+    /* SITUATION CARD */
+    .situation-card { background: var(--white); border: 2px solid var(--border); border-radius: var(--radius-lg); padding: 16px 18px; display: flex; align-items: flex-start; gap: 13px; position: relative; transition: all .2s; }
+    .situation-card.unlocked { cursor: pointer; }
+    .situation-card.unlocked:hover { border-color: var(--blue-mid); box-shadow: var(--shadow); transform: translateY(-2px); }
+    .situation-card.completed { border-color: var(--gold); background: var(--gold-pale); cursor: pointer; }
+    .situation-card.completed:hover { box-shadow: var(--shadow); transform: translateY(-2px); }
+    .situation-card.locked { opacity: .55; cursor: not-allowed; background: var(--gray-light); }
+    .card-emoji-wrap { font-size: 24px; flex-shrink: 0; width: 44px; height: 44px; background: var(--blue-light); border-radius: 11px; display: flex; align-items: center; justify-content: center; }
+    .situation-card.locked .card-emoji-wrap { background: var(--border); filter: grayscale(1); }
+    .situation-card.completed .card-emoji-wrap { background: rgba(201,168,76,.15); }
+    .card-body { flex: 1; min-width: 0; }
+    .card-meta { display: flex; align-items: center; gap: 7px; margin-bottom: 3px; flex-wrap: wrap; }
+    .card-number { font-size: 11px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--gold); }
+    .card-difficulty { font-size: 10px; font-weight: 700; padding: 2px 7px; border-radius: 100px; letter-spacing: .04em; text-transform: uppercase; }
+    .diff-frequent { background: rgba(46,139,87,.12); color: var(--green); }
+    .diff-intense { background: rgba(176,58,46,.12); color: var(--red); }
+    .diff-complex { background: rgba(107,63,160,.12); color: var(--purple); }
+    .card-title { font-family: 'Playfair Display', serif; font-size: 15px; color: var(--blue); line-height: 1.3; margin-bottom: 3px; }
+    .situation-card.locked .card-title { color: var(--gray); }
+    .card-desc { font-size: 12px; color: var(--gray); line-height: 1.4; }
+    .card-status { margin-top: 9px; display: flex; align-items: center; gap: 8px; }
+    .status-done { font-size: 11px; font-weight: 700; color: var(--green); letter-spacing: .03em; }
+    .status-locked { font-size: 11px; font-weight: 700; color: var(--locked); letter-spacing: .03em; display: flex; align-items: center; gap: 4px; }
+    .status-diary { font-size: 11px; font-weight: 700; color: var(--blue-mid); }
+    .lock-overlay { position: absolute; top: 14px; right: 16px; font-size: 18px; color: var(--locked); }
+    /* day-counter chip on locked cards */
+    .day-chip { display: inline-flex; align-items: center; gap: 5px; background: var(--gray-light); border: 1px solid var(--border); border-radius: 100px; padding: 4px 10px; font-size: 11px; font-weight: 700; color: var(--gray); margin-top: 8px; }
+
+    /* EXTRAS */
+    .extras-section { max-width: 820px; margin: 0 auto; padding: 0 20px 60px; }
+    .extras-grid { display: grid; grid-template-columns: repeat(2,1fr); gap: 10px; }
+    @media(max-width:480px){.extras-grid{grid-template-columns:1fr;}}
+    .extra-card { background: var(--white); border: 2px solid var(--border); border-radius: var(--radius-lg); padding: 18px; cursor: pointer; transition: all .2s; text-align: center; }
+    .extra-card:hover { border-color: var(--gold); box-shadow: var(--shadow); transform: translateY(-2px); }
+    .extra-icon { font-size: 28px; margin-bottom: 7px; }
+    .extra-title { font-family: 'Playfair Display', serif; font-size: 15px; color: var(--blue); margin-bottom: 3px; }
+    .extra-desc { font-size: 12px; color: var(--gray); line-height: 1.4; }
+
+    /* ══════ DETAIL ══════ */
+    .detail-header { background: var(--white); border-bottom: 1px solid var(--border); padding: 0 20px; position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 12px rgba(30,58,95,.06); }
+    .detail-header-inner { max-width: 700px; margin: 0 auto; height: 64px; display: flex; align-items: center; gap: 12px; }
+    .back-btn { display: flex; align-items: center; gap: 5px; background: none; border: none; font-family: 'Lato', sans-serif; font-size: 14px; font-weight: 700; color: var(--blue-mid); cursor: pointer; padding: 8px 0; }
+    .detail-dots { display: flex; gap: 4px; margin-left: auto; }
+    .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--border); transition: background .3s; }
+    .dot.active { background: var(--blue-mid); }
+    .dot.done-dot { background: var(--gold); }
+    .dot.locked-dot { background: var(--border); opacity: .5; }
+    .detail-content { max-width: 700px; margin: 0 auto; padding: 32px 20px 80px; }
+
+    /* SITUATION HERO */
+    .situation-hero { background: linear-gradient(135deg, var(--blue), var(--blue-mid)); border-radius: var(--radius-lg); padding: 28px; margin-bottom: 22px; position: relative; overflow: hidden; }
+    .situation-hero::before { content: attr(data-emoji); position: absolute; right: 14px; bottom: -10px; font-size: 76px; opacity: .12; pointer-events: none; }
+    .sit-meta { display: flex; align-items: center; gap: 8px; margin-bottom: 7px; flex-wrap: wrap; }
+    .sit-num { font-size: 11px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--gold); }
+    .sit-diff { font-size: 10px; font-weight: 700; padding: 3px 9px; border-radius: 100px; text-transform: uppercase; letter-spacing: .04em; }
+    .sit-title { font-family: 'Playfair Display', serif; font-size: clamp(17px,3vw,24px); color: #fff; line-height: 1.25; margin-bottom: 9px; }
+    .sit-scene { font-size: 13px; color: rgba(255,255,255,.8); font-style: italic; line-height: 1.5; }
+
+    /* CONTENT BLOCKS */
+    .content-block { background: var(--white); border-radius: var(--radius-lg); padding: 22px; margin-bottom: 14px; border: 1px solid var(--border); }
+    .block-label { display: flex; align-items: center; gap: 9px; margin-bottom: 13px; }
+    .block-icon { width: 32px; height: 32px; border-radius: 9px; display: flex; align-items: center; justify-content: center; font-size: 15px; flex-shrink: 0; }
+    .block-icon.feel,.block-icon.avoid { background: rgba(176,58,46,.10); }
+    .block-icon.say { background: rgba(46,139,87,.10); }
+    .block-icon.why,.block-icon.deeper { background: rgba(43,91,168,.10); }
+    .block-icon.phrase { background: rgba(201,168,76,.12); }
+    .block-icon.read { background: rgba(107,63,160,.10); }
+    .block-title { font-size: 11px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; }
+    .block-title.feel,.block-title.avoid { color: var(--red); }
+    .block-title.say { color: var(--green); }
+    .block-title.why,.block-title.deeper { color: var(--blue-mid); }
+    .block-title.phrase { color: var(--gold); }
+    .block-title.read { color: var(--purple); }
+    .block-text { font-size: 15px; color: var(--dark); line-height: 1.7; }
+    .list-item { display: flex; align-items: flex-start; gap: 9px; margin-bottom: 9px; }
+    .list-item:last-child { margin-bottom: 0; }
+    .list-marker { font-weight: 700; font-size: 14px; flex-shrink: 0; margin-top: 2px; }
+    .list-marker.x { color: var(--red); }
+    .list-marker.check { color: var(--green); }
+    .list-marker.gold { color: var(--gold); }
+
+    /* PHRASES */
+    .phrases-grid { display: grid; gap: 9px; }
+    .phrase-item { background: var(--gold-light); border: 1px solid rgba(201,168,76,.3); border-left: 4px solid var(--gold); border-radius: 9px; padding: 13px 14px; display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; }
+    .phrase-text { font-size: 14px; color: var(--dark); font-style: italic; line-height: 1.5; flex: 1; }
+
+
+    /* VERSE */
+    .verse-block { background: var(--blue-light); border-radius: var(--radius-lg); padding: 20px; margin-bottom: 14px; border: 1px solid rgba(43,91,168,.15); text-align: center; }
+    .verse-text { font-family: 'Playfair Display', serif; font-style: italic; font-size: 16px; color: var(--blue); line-height: 1.6; margin-bottom: 7px; }
+    .verse-ref { font-size: 11px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--gold); }
+
+    /* STORY */
+    .story-block { background: var(--gray-light); border-radius: var(--radius-lg); padding: 20px; margin-bottom: 14px; border-left: 4px solid var(--blue-mid); }
+    .story-label { font-size: 11px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--blue-mid); margin-bottom: 9px; }
+    .story-text { font-size: 14px; color: var(--dark); line-height: 1.7; font-style: italic; }
+    .story-author { font-size: 12px; color: var(--gray); margin-top: 7px; font-weight: 700; }
+
+    /* READINGS */
+    .reading-item { display: flex; align-items: flex-start; gap: 12px; padding: 12px 0; border-bottom: 1px solid var(--border); }
+    .reading-item:last-child { border-bottom: none; padding-bottom: 0; }
+    .reading-type { font-size: 10px; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; padding: 3px 9px; border-radius: 100px; flex-shrink: 0; margin-top: 2px; }
+    .reading-type.book { background: rgba(107,63,160,.12); color: var(--purple); }
+    .reading-type.video { background: rgba(176,58,46,.12); color: var(--red); }
+    .reading-title { font-size: 14px; font-weight: 700; color: var(--blue); margin-bottom: 3px; }
+    .reading-desc { font-size: 13px; color: var(--gray); line-height: 1.4; }
+
+    /* DEEPER */
+    .deeper-item { padding: 11px 0; border-bottom: 1px solid var(--border); font-size: 14px; color: var(--dark); line-height: 1.5; }
+    .deeper-item:last-child { border-bottom: none; }
+    .deeper-num { color: var(--blue-mid); font-weight: 700; margin-right: 7px; }
+
+    /* FULL ANSWER */
+    .full-answer-block { background: linear-gradient(135deg, #EAF2FB, #F0F7FF); border: 2px solid rgba(43,91,168,.2); border-radius: var(--radius-lg); padding: 24px; margin-bottom: 14px; }
+    .full-answer-label { font-size: 11px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--blue-mid); margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
+    .full-answer-scenario { font-size: 12px; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; color: var(--gray); margin-bottom: 6px; margin-top: 16px; }
+    .full-answer-scenario:first-of-type { margin-top: 0; }
+    .full-answer-bubble { background: var(--white); border-radius: 14px 14px 14px 4px; padding: 14px 16px; margin-bottom: 8px; font-size: 15px; color: var(--dark); line-height: 1.6; border: 1px solid var(--border); }
+    .full-answer-bubble.them { background: var(--gray-light); border-radius: 14px 14px 4px 14px; font-style: italic; color: var(--gray); }
+    .full-answer-note { font-size: 13px; color: var(--blue-mid); font-style: italic; margin-top: 6px; padding: 10px 14px; background: rgba(43,91,168,.06); border-radius: var(--radius); line-height: 1.5; }
+
+    /* ARGUMENT */
+    .argument-block { background: var(--gold-pale); border: 1px solid rgba(201,168,76,.3); border-radius: var(--radius-lg); padding: 22px; margin-bottom: 14px; }
+    .argument-step { display: flex; gap: 14px; margin-bottom: 14px; align-items: flex-start; }
+    .argument-step:last-child { margin-bottom: 0; }
+    .argument-num { width: 28px; height: 28px; background: var(--gold); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700; color: #fff; flex-shrink: 0; }
+    .argument-text { flex: 1; font-size: 14px; color: var(--dark); line-height: 1.6; padding-top: 3px; }
+    .argument-text strong { color: var(--blue); }
+    .argument-conclusion { margin-top: 14px; padding: 14px; background: rgba(201,168,76,.15); border-radius: var(--radius); font-size: 14px; color: var(--dark); line-height: 1.6; border-left: 4px solid var(--gold); font-weight: 700; }
+
+    /* DIARY */
+    .diary-block { background: var(--white); border: 2px solid var(--border); border-radius: var(--radius-lg); padding: 20px; margin-bottom: 14px; }
+    .diary-label { font-size: 12px; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; color: var(--blue); margin-bottom: 9px; }
+    .diary-textarea { width: 100%; min-height: 90px; padding: 13px; border: 2px solid var(--border); border-radius: var(--radius); font-family: 'Lato', sans-serif; font-size: 14px; color: var(--dark); line-height: 1.6; resize: vertical; transition: border-color .2s; }
+    .diary-textarea:focus { outline: none; border-color: var(--blue-mid); }
+    .diary-save { margin-top: 9px; padding: 9px 16px; background: var(--blue); color: #fff; border: none; border-radius: var(--radius); font-family: 'Lato', sans-serif; font-size: 14px; font-weight: 700; cursor: pointer; transition: background .2s; }
+    .diary-save:hover { background: var(--blue-mid); }
+    .diary-saved { font-size: 12px; color: var(--green); font-weight: 700; margin-top: 7px; display: none; }
+
+    /* MARK DONE */
+    .mark-done-btn { width: 100%; padding: 15px; background: linear-gradient(135deg, var(--blue), var(--blue-mid)); color: #fff; border: none; border-radius: var(--radius-lg); font-family: 'Lato', sans-serif; font-size: 16px; font-weight: 700; cursor: pointer; transition: all .2s; margin-top: 5px; }
+    .mark-done-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(30,58,95,.25); }
+    .mark-done-btn.done { background: linear-gradient(135deg, var(--green), #3aac6e); }
+    .next-unlock-hint { background: var(--gold-light); border: 1px solid rgba(201,168,76,.35); border-radius: var(--radius); padding: 14px 16px; margin-top: 12px; text-align: center; font-size: 13px; color: var(--dark); line-height: 1.5; display: none; }
+    .next-unlock-hint strong { color: var(--gold); }
+    .nav-btns { display: flex; gap: 10px; margin-top: 12px; }
+    .nav-btn { flex: 1; padding: 13px; border: 2px solid var(--border); border-radius: var(--radius); background: var(--white); font-family: 'Lato', sans-serif; font-size: 14px; font-weight: 700; color: var(--blue); cursor: pointer; transition: all .2s; }
+    .nav-btn:hover:not(:disabled) { border-color: var(--blue-mid); background: var(--blue-light); }
+    .nav-btn:disabled { opacity: .3; cursor: not-allowed; }
+
+    /* ══════ EXTRA SCREEN ══════ */
+    .extra-content { max-width: 700px; margin: 0 auto; padding: 32px 20px 80px; }
+    .extra-hero { border-radius: var(--radius-lg); padding: 28px; margin-bottom: 24px; color: #fff; }
+    .extra-hero h2 { font-family: 'Playfair Display', serif; font-size: 24px; margin-bottom: 7px; }
+    .extra-hero p { font-size: 14px; opacity: .9; }
+
+    /* GLOSSARY */
+    .gloss-search { margin-bottom: 18px; }
+    .gloss-search input { width: 100%; padding: 12px 15px; border: 2px solid var(--border); border-radius: var(--radius); font-family: 'Lato', sans-serif; font-size: 15px; }
+    .gloss-search input:focus { outline: none; border-color: var(--blue-mid); }
+    .gloss-item { border-bottom: 1px solid var(--border); padding: 14px 0; }
+    .gloss-item:last-child { border-bottom: none; }
+    .gloss-term { font-family: 'Playfair Display', serif; font-size: 17px; color: var(--blue); cursor: pointer; display: flex; align-items: center; justify-content: space-between; }
+    .gloss-def { font-size: 14px; color: var(--dark); line-height: 1.6; display: none; margin-top: 8px; }
+    .gloss-def.open { display: block; }
+
+    /* DIARY VIEWER */
+    .diary-viewer-entry { padding: 14px 0; border-bottom: 1px solid var(--border); }
+    .diary-viewer-entry:last-child { border-bottom: none; }
+    .diary-viewer-sit { font-family: 'Playfair Display', serif; font-size: 15px; color: var(--blue); margin-bottom: 5px; }
+    .diary-viewer-text { font-size: 14px; color: var(--dark); line-height: 1.6; font-style: italic; }
+
+    /* CANVAS */
+
+
+    /* ANIMATIONS */
+    @keyframes fadeUp { from{opacity:0;transform:translateY(14px);}to{opacity:1;transform:translateY(0);} }
+    .fade-up { animation: fadeUp .35s ease both; }
+    .fade-up-1{animation-delay:.05s}.fade-up-2{animation-delay:.10s}.fade-up-3{animation-delay:.15s}
+    .fade-up-4{animation-delay:.20s}.fade-up-5{animation-delay:.25s}.fade-up-6{animation-delay:.30s}
+
+    @media(max-width:480px){
+      .welcome-card{padding:28px 18px 24px;}
+      .detail-content,.extra-content{padding:22px 14px 80px;}
+      .situation-hero{padding:20px 16px;}
+      .content-block{padding:16px;}
+      .stat-num{font-size:22px;}
+      .header-brand{font-size:14px;}
+    }
+  </style>
+</head>
+<body>
+
+<div class="toast" id="toast"></div>
+
+
+<!-- MODAL GLOSSARY -->
+<div class="modal-overlay" id="modal-gloss">
+  <div class="modal-box">
+    <button class="modal-close" onclick="closeModal('modal-gloss')">✕</button>
+    <div class="modal-title">Glosario Apologético</div>
+    <div class="modal-subtitle">30 términos explicados en lenguaje simple. Toca cualquiera para ver la definición.</div>
+    <div class="gloss-search"><input type="text" id="gloss-input" placeholder="Buscar término..." oninput="filterGloss()" /></div>
+    <div id="gloss-list"></div>
+  </div>
+</div>
+
+<!-- MODAL DIARY VIEWER -->
+<div class="modal-overlay" id="modal-diary">
+  <div class="modal-box">
+    <button class="modal-close" onclick="closeModal('modal-diary')">✕</button>
+    <div class="modal-title">Mi Diario</div>
+    <div class="modal-subtitle">Todo lo que escribiste en cada situación.</div>
+    <div id="diary-viewer-content"></div>
+  </div>
+</div>
+
+<!-- ══════ S1 WELCOME ══════ -->
+<div class="screen active" id="screen-welcome">
+  <div class="welcome-card fade-up">
+    <div class="brand-badge"><span>✦ Descubriendo el Porqué de la Fe</span></div>
+    <h1 class="welcome-title">Kit de Apologética Jovem</h1>
+    <p class="welcome-subtitle">Para saber qué decir, cómo actuar y cómo mantenerte firme cuando alguien cuestiona tu fe.</p>
+    <div class="form-group">
+      <label class="form-label" for="input-name">¿Cómo te llamas?</label>
+      <input class="form-input" type="text" id="input-name" placeholder="Tu nombre..." autocomplete="off" />
+    </div>
+    <div class="form-group">
+      <label class="form-label">¿Cuántos años tienes?</label>
+      <div class="age-grid">
+        <button class="age-btn" data-age="8">8</button><button class="age-btn" data-age="9">9</button>
+        <button class="age-btn" data-age="10">10</button><button class="age-btn" data-age="11">11</button>
+        <button class="age-btn" data-age="12">12</button><button class="age-btn" data-age="13">13</button>
+        <button class="age-btn" data-age="14">14</button><button class="age-btn" data-age="15">15+</button>
+      </div>
+    </div>
+    <button class="btn-primary" id="btn-start" disabled>Comenzar →</button>
+    <div class="verse-footer">
+      <p>"Estén siempre preparados para responder a todo el que les pida razón de la esperanza que hay en ustedes."</p>
+      <cite>1 Pedro 3:15</cite>
+    </div>
+  </div>
+</div>
+
+<!-- ══════ S2 QUIZ ══════ -->
+<div class="screen" id="screen-quiz">
+  <div class="quiz-card fade-up">
+    <div class="quiz-progress" id="quiz-progress"></div>
+    <h2 class="quiz-q" id="quiz-q"></h2>
+    <p class="quiz-sub" id="quiz-sub"></p>
+    <div class="quiz-options" id="quiz-options"></div>
+  </div>
+</div>
+
+<!-- ══════ S3 HOME ══════ -->
+<div class="screen" id="screen-home">
+  <header class="site-header">
+    <div class="header-inner">
+      <div class="header-brand">Kit <span>Apologética</span></div>
+      <div class="header-right">
+        <div class="streak-badge"><span id="streak-text">🔥 0</span></div>
+        <div class="user-pill" onclick="resetUser()">
+          <div class="user-avatar" id="user-avatar">?</div>
+          <span class="user-name-pill" id="user-name-pill">...</span>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <div class="home-hero">
+    <div class="hero-inner">
+      <p class="hero-greeting" id="hero-greeting">Bienvenido/a</p>
+      <h1 class="hero-title" id="hero-title">Las 10 situaciones</h1>
+      <p class="hero-desc" id="hero-desc">Una nueva situación se desbloquea cada día al completar la anterior.</p>
+    </div>
+  </div>
+
+  <div class="stats-row">
+    <div class="stat-card"><div class="stat-num" id="stat-done">0</div><div class="stat-label">Completadas</div></div>
+    <div class="stat-card"><div class="stat-num" id="stat-unlock">1</div><div class="stat-label">Desbloqueadas</div></div>
+    <div class="stat-card"><div class="stat-num" id="stat-diary">0</div><div class="stat-label">En mi diario</div></div>
+  </div>
+
+  <div class="progress-section">
+    <div class="progress-header">
+      <span class="progress-label">Progreso</span>
+      <span class="progress-count" id="progress-count">0 de 10</span>
+    </div>
+    <div class="progress-bar-wrap"><div class="progress-bar-fill" id="progress-bar" style="width:0%"></div></div>
+  </div>
+
+  <div class="unlock-banner" id="unlock-banner" style="display:none">
+    <div class="unlock-card">
+      <div class="unlock-icon">🔓</div>
+      <div class="unlock-body">
+        <div class="unlock-label">Próxima situación</div>
+        <div class="unlock-text" id="unlock-text">...</div>
+        <div class="unlock-sub" id="unlock-sub">...</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="situations-section">
+    <div class="section-header">
+      <h2 class="section-title">Situaciones</h2>
+      <div class="search-box"><span>🔍</span><input type="text" id="search-input" placeholder="Buscar..." oninput="filterSituations()" /></div>
+    </div>
+    <div class="situations-grid" id="situations-grid"></div>
+  </div>
+
+  <div class="extras-section">
+    <div class="section-header" style="margin-bottom:14px"><h2 class="section-title">Recursos</h2></div>
+    <div class="extras-grid">
+      <div class="extra-card" onclick="showExtra('frases')"><div class="extra-icon">💬</div><div class="extra-title">Frases que funcionan</div><div class="extra-desc">Respuestas cortas para usar en el momento</div></div>
+      <div class="extra-card" onclick="showExtra('dudas')"><div class="extra-icon">🤔</div><div class="extra-title">Cuando no sabes qué decir</div><div class="extra-desc">Qué hacer con las preguntas sin respuesta</div></div>
+      <div class="extra-card" onclick="openModal('modal-gloss')"><div class="extra-icon">📖</div><div class="extra-title">Glosario Apologético</div><div class="extra-desc">30 términos explicados en lenguaje simple</div></div>
+      <div class="extra-card" onclick="openDiaryViewer()"><div class="extra-icon">✏️</div><div class="extra-title">Mi Diario</div><div class="extra-desc">Todo lo que escribiste en cada situación</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════ S4 DETAIL ══════ -->
+<div class="screen" id="screen-situation">
+  <header class="detail-header">
+    <div class="detail-header-inner">
+      <button class="back-btn" onclick="goBack()">
+        <svg width="15" height="15" viewBox="0 0 16 16" fill="none"><path d="M10 12L6 8l4-4" stroke="#2B5BA8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        Volver
+      </button>
+      <div class="detail-dots" id="detail-dots"></div>
+    </div>
+  </header>
+  <div class="detail-content" id="detail-content"></div>
+</div>
+
+<!-- ══════ S5 EXTRA ══════ -->
+<div class="screen" id="screen-extra">
+  <header class="detail-header">
+    <div class="detail-header-inner">
+      <button class="back-btn" onclick="showScreen('screen-home')">
+        <svg width="15" height="15" viewBox="0 0 16 16" fill="none"><path d="M10 12L6 8l4-4" stroke="#2B5BA8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        Volver
+      </button>
+    </div>
+  </header>
+  <div class="extra-content" id="extra-content"></div>
+</div>
+
+<script>
+// ══════════════════════════════════════════════════════
+// DATA
+// ══════════════════════════════════════════════════════
+const SITS=[
+  {id:1,emoji:"😏",difficulty:"frequent",
+    title:'El amigo que dice: «¿Tú todavía crees en eso? Qué infantil.»',
+    tags:["presión social","amigos"],
+    scene:"Estás en la escuela y alguien descubre que eres cristiano. La reacción no es una pregunta. Es burla directa, delante de otros.",
+    feel:"Vergüenza y ganas de encogerte. Puede que también sientas enojo — tu identidad fue atacada en público. Eso duele aunque no lo muestres.",
+    avoid:["Reírte de ti mismo para parecer cool. Estás entrenando a los demás a que burlarse de tu fe no tiene costo.","Ponerte agresivo o defensivo — eso confirma que el ataque funcionó y te desestabilizó.","Ignorar en silencio — puede leerse como que no tienes nada que decir."],
+    say:["Responder con calma y curiosidad genuina: «¿Qué te hace pensar que creer es de ignorantes?»","Nombrar lo que pasó sin dramatizar: «¿Estás preguntando en serio o solo burlándote?»","Usar datos reales: «Francis Collins dirigió el Proyecto Genoma Humano y es creyente. ¿Él también te parece infantil?»"],
+    why:"La burla es una táctica social, no un argumento. Funciona porque produce vergüenza. La mejor respuesta es mostrar que la vergüenza no llegó — con calma, con curiosidad, sin enojo. Eso deja al otro sin nada con qué trabajar.",
+    fullAnswer:[
+      {label:"Si la burla es casual y en grupo",them:"«¿Tú todavía crees en eso? Qué infantil, bro.»",you:"«Sí, creo. ¿Por qué te parece infantil?»",note:"Pregunta simple, dicha con calma. Si no tiene respuesta real, la conversación termina ahí. Si tiene respuesta, acabas de abrir algo interesante."},
+      {label:"Si presiona más",them:"«Es obvio que la ciencia ya demostró que Dios no existe.»",you:"«¿Qué experimento exactamente demostró eso? Te pregunto en serio — porque yo no lo encontré. Y hay físicos y biólogos que tampoco.»",note:"No estás atacando. Estás pidiendo evidencia. Eso es exactamente lo que debería hacer cualquier persona que piensa."},
+      {label:"Si solo quiere reírse",them:"«Jaja, siguiente que me dices que crees en el ratón Pérez.»",you:"«No, hay una diferencia bastante clara. Pero si en algún momento quieres saberla, avísame.»",note:"Cierras la puerta sin enojo. Mostraste que tienes algo que decir — y que no lo vas a regalar a quien no lo pide en serio."}
+    ],
+    argument:{title:"Lo que necesitas entender para esta conversación",steps:[
+      {n:"1",text:"<strong>Fe no es ausencia de razón.</strong> Es confianza basada en evidencia. La fe razonada considera argumentos, historia y experiencia — como confiar en un médico o en un avión cuya ingeniería no entiendes."},
+      {n:"2",text:"<strong>Creer en Dios no es incompatible con ser inteligente.</strong> Francis Collins (genética), Georges Lemaître (Big Bang), Blaise Pascal (matemáticas), Gregor Mendel (genética) — todos creyentes. La lista es larga."},
+      {n:"3",text:"<strong>Burla no es argumento.</strong> Si alguien dice que creer es infantil, está expresando una opinión social — no una demostración. Tiene que justificarla igual que tú justificas tu fe."}
+    ],conclusion:"Cuando alguien se burla de tu fe, no está derrotando un argumento. Está evitando tener uno."},
+    phrases:["«¿Qué te hace pensar que creer es de ignorantes? Pregunto en serio.»","«Creo porque hay razones. No porque alguien me lo impuso — lo investigué.»","«Francis Collins dirigió el Proyecto Genoma Humano y cree en Dios. ¿Él también es infantil?»","«No tengo problema con que no lo compartas. Pero tampoco voy a avergonzarme.»"],
+    verse:{text:"No tengan miedo de los que matan el cuerpo pero no pueden matar el alma.",ref:"Mateo 10:28"},
+    story:{text:"En octavo grado, mi mejor amigo me dijo eso delante de todos. Me quedé paralizado. La siguiente vez que pasó, pregunté: «¿Por qué te molesta lo que yo creo?» Se quedó en silencio. No lo convencí de nada, pero tampoco me dejé humillar. Eso fue suficiente.",author:"Estudiante, 14 años"},
+    readings:[{type:"book",title:"Mero Cristianismo — C.S. Lewis",desc:"Lewis fue ateo convencido que cambió de posición después de investigar. El primer capítulo ya responde la idea de que creer es irracional."},{type:"book",title:"«¿Es racional creer en Dios?» — John Lennox",desc:"Matemático de Oxford explica en lenguaje simple por qué la ciencia no elimina a Dios."}],
+    deeper:["¿Qué diferencia hay entre fe ciega y fe con razones? ¿Tienes ejemplos de ambas?","¿Cambiarías de opinión sobre algo importante si alguien se riera de ti? ¿Eso es una razón válida para cambiar?","Si un amigo te preguntara honestamente por qué crees, ¿qué le dirías? Practícalo antes de que suceda."]},
+  {id:2,emoji:"🔬",difficulty:"complex",
+    title:'El profesor que dice: «La ciencia ya probó que Dios no existe.»',
+    tags:["escuela","ciencia"],
+    scene:"Estás en clase de biología, filosofía o historia. El profesor hace un comentario sobre ciencia y religión como si fueran incompatibles — con la autoridad de alguien que sabe.",
+    feel:"Confusión mezclada con duda. Si alguien con esa formación lo dice con tanta seguridad, ¿habrás estado equivocado todo este tiempo?",
+    avoid:["Contradecir al profesor en público sin estar preparado — puede humillarte y cerrar la conversación.","Aceptar en silencio lo que dijo como si fuera verdad — no lo es, y el silencio lo confirma.","Responder con emoción o religiosidad — eso confirma el estereotipo de que la fe es irracional."],
+    say:["En clase, una pregunta simple: «¿Qué experimento específico demostró eso?»","Después de clase, con respeto: «Me quedé pensando. ¿Puede recomendarme dónde leer más sobre eso?»","En casa, buscar lo que filósofos de la ciencia dicen sobre los límites del método científico."],
+    why:"La ciencia describe cómo funcionan las cosas — no responde si Dios existe. Esa es una pregunta filosófica, no experimental. Ningún microscopio puede detectar alma o ausencia de alma. El profesor hizo una afirmación filosófica disfrazada de afirmación científica.",
+    fullAnswer:[
+      {label:"En clase, con calma",them:"«La ciencia ya demostró que no hay lugar para Dios en el universo.»",you:"«Tengo una duda — ¿qué experimento específico demostró eso? La ciencia trabaja con lo que puede medir y falsificar. ¿Cómo se mediría la existencia o ausencia de Dios?»",note:"Esta pregunta es filosóficamente sólida. No estás atacando al profesor — estás aplicando el método científico al método científico."},
+      {label:"Si dice que la evolución eliminó a Dios",them:"«Darwin explicó el origen de la vida sin necesidad de un creador.»",you:"«La evolución explica cómo se desarrollaron las especies. Pero no explica por qué existe el universo en lugar de nada, por qué hay leyes de la física que permiten la vida, ni por qué existe la conciencia. ¿Eso no queda sin respuesta?»",note:"No estás negando la evolución. Estás señalando los límites de lo que explica. Eso es filosóficamente sólido."},
+      {label:"Después de clase",them:"(Conversación privada con el profesor)",you:"«Lo que dijo hoy me quedó dando vueltas. Encontré que Francis Collins — el director del Proyecto Genoma Humano — cree en Dios y también es científico. ¿Cómo lo interpretaría usted?»",note:"Abrir la conversación con respeto y con un dato real. Muchos profesores respetan esto más que una discusión en clase."}
+    ],
+    argument:{title:"El argumento central que necesitas entender",steps:[
+      {n:"1",text:"<strong>La ciencia trabaja con lo que puede observar y medir.</strong> Sus métodos son poderosos para eso. Pero la pregunta «¿existe Dios?» no es una pregunta científica — es filosófica. Es como preguntarle a una regla si la música es buena."},
+      {n:"2",text:"<strong>El origen del universo sigue abierto.</strong> El Big Bang nos dice que el universo tuvo un comienzo. Pero la ciencia no explica por qué hay algo en lugar de nada, ni qué causó ese comienzo. Esa pregunta vive justo en la frontera donde la ciencia termina y la filosofía comienza."},
+      {n:"3",text:"<strong>Muchos científicos de primer nivel son creyentes.</strong> Francis Collins (genética), John Polkinghorne (física cuántica), Allan Sandage (astrofísica), Gerhard Ertl (Premio Nobel de Química). La fe y la ciencia no son incompatibles."}
+    ],conclusion:"Decir que la ciencia probó que Dios no existe es una afirmación filosófica disfrazada de científica. Merece el mismo estándar de evidencia que cualquier otra afirmación."},
+    phrases:["«¿Qué experimento específico demostró eso? Pregunto con genuina curiosidad.»","«La ciencia responde el cómo. ¿Quién responde el por qué?»","«Francis Collins dirigió el Proyecto Genoma Humano y es creyente. ¿Eso no complica la afirmación?»","«¿Dónde termina la ciencia y empieza la filosofía en esta pregunta?»"],
+    verse:{text:"El principio de la sabiduría es el temor del Señor; los necios desprecian la sabiduría y la instrucción.",ref:"Proverbios 1:7"},
+    story:{text:"Mi profesor de biología dijo que Darwin había refutado a Dios. Al día siguiente levanté la mano: «¿La evolución explica por qué existe algo en lugar de nada?» Se quedó pensando. Después de clase me dijo: «Esa es una buena pregunta. No tengo una respuesta fácil.» Ese día entendí que hacer la pregunta correcta vale más que tener todas las respuestas.",author:"Estudiante, 13 años"},
+    readings:[{type:"book",title:"El Lenguaje de Dios — Francis Collins",desc:"El científico que descifró el genoma humano explica, con rigor, por qué cree en Dios."},{type:"book",title:"¿Puede un hombre vivir sin Dios? — Ravi Zacharias",desc:"Responde directamente la pregunta de si el ateísmo es una posición filosóficamente sostenible."}],
+    deeper:["¿Qué preguntas puede responder la ciencia? ¿Cuáles quedan fuera de su alcance por definición?","Si la ciencia no puede probar ni refutar a Dios, ¿qué tipo de evidencia sería relevante para esa pregunta?","¿Es posible que dos personas — una creyente y una atea — sean igualmente rigurosas intelectualmente? ¿Por qué?"]},
+  {id:3,emoji:"😂",difficulty:"frequent",
+    title:'El grupo que se ríe cuando dices que vas a la iglesia.',
+    tags:["presión social","grupo"],
+    scene:"Alguien pregunta qué hiciste el fin de semana. Dices que fuiste a la iglesia. Hay risas, caras, comentarios.",
+    feel:"Incomodidad social intensa. El instinto es corregirte, aclarar, minimizar. Ganas de haber dicho otra cosa.",
+    avoid:["Decir «estuve con mi familia» para evitar el tema — estás aprendiendo a esconderte.","Reírte con ellos de lo que dijiste — estás validando que hay algo de lo que reírse.","Convertirlo en un sermón — nadie pidió que los convirtieras."],
+    say:["Responder con naturalidad, sin drama: «Sí, fui. ¿Tú qué hiciste?»","Si preguntan: «¿Y eso qué es?» — describir lo que es: «Un lugar donde hay gente que piensa en cosas importantes.»","Mostrar que no te avergüenza sin convertirlo en un tema más grande de lo que es."],
+    why:"Las personas se ríen de lo que les parece raro — y lo que les parece raro es lo que no conocen. Tu tranquilidad ante su reacción comunica más que cualquier argumento. Si no te incomoda, la broma no tiene donde aterrizar.",
+    fullAnswer:[
+      {label:"Respuesta básica — naturalidad total",them:"«¿Fuiste a la iglesia? Jaja, en serio.»",you:"«Sí, en serio. ¿Tú qué hiciste?»",note:"Nada más. No te justificas, no explicas, no te ríes. Cambias el tema con calma. Eso es todo lo que hace falta la mayoría de las veces."},
+      {label:"Si preguntan con genuina curiosidad",them:"«¿Por qué vas? ¿Tu familia te obliga?»",you:"«No, voy porque quiero. Me gusta pensar en cosas que importan, y hay gente ahí con quien puedo hacerlo. No es tan diferente a por qué otros van al equipo de debate o al club de ajedrez.»",note:"Normalizas sin defenderte. Describes lo que realmente hace una iglesia — comunidad, reflexión, sentido."},
+      {label:"Si la presión sigue",them:"«Pero ¿no te parece medio anticuado creer en Dios?»",you:"«Depende de qué razones tengas para creer. Las mías no vienen de la tradición — vienen de pensar. Si en algún momento quieres escucharlas, te cuento.»",note:"Ofreces. No impones. Y mostraste que tu fe tiene razones — sin explicarlas ahora si el contexto no es el correcto."}
+    ],
+    argument:{title:"Por qué la presión social no es razón para cambiar lo que crees",steps:[
+      {n:"1",text:"<strong>La aprobación social no es evidencia de verdad.</strong> En la historia, la mayoría se equivocó muchas veces — sobre esclavitud, sobre quién merece derechos. La mayoría no es un buen árbitro de lo que es verdad."},
+      {n:"2",text:"<strong>Esconderte tiene un costo que no siempre se ve de inmediato.</strong> Cada vez que dices «estuve con mi familia» en lugar de «fui a la iglesia», refuerzas en ti mismo que hay algo de lo que avergonzarse. Eso se acumula."},
+      {n:"3",text:"<strong>La identidad que se sostiene bajo presión es la única real.</strong> Cualquiera puede tener convicciones cuando no cuestan nada. Lo que mostrás cuando hay costo es lo que realmente crees."}
+    ],conclusion:"No tienes que convencer a nadie. Solo tienes que ser consistente. La coherencia tiene más peso a largo plazo que cualquier argumento."},
+    phrases:["«Sí, fui. ¿Tú qué hiciste?»","«Me gusta. No es para todo el mundo — pero es para mí.»","«¿Nunca fuiste? Es más interesante de lo que parece desde afuera.»","«No me molesta que te parezca raro. Fue un buen fin de semana.»"],
+    verse:{text:"No me avergüenzo del evangelio, porque es poder de Dios para salvación de todo el que cree.",ref:"Romanos 1:16"},
+    story:{text:"Estuve meses diciendo «estuve con mi familia» para no decir que fui a la iglesia. Un día me harté. Dije «fui a la iglesia». Hubo dos segundos de silencio. Respondí «sí, y estuvo bien» con una sonrisa. Alguien dijo «ah, qué bien» y el tema cambió. Me di cuenta de que el drama era mío, no de ellos.",author:"Estudiante, 12 años"},
+    readings:[{type:"book",title:"El Peso de la Gloria — C.S. Lewis",desc:"Ensayos sobre por qué importa lo que creemos incluso cuando no está de moda."},{type:"book",title:"El Costo del Discipulado — Dietrich Bonhoeffer",desc:"Sobre la fe que se mantiene firme cuando tiene un costo real."}],
+    deeper:["¿Cuántas veces escondiste tu fe para evitar incomodidad? ¿Cómo te sentiste después?","¿Hay otras cosas en tu vida que defiendes aunque otros no las entiendan? ¿Qué diferencia hay con la fe?","Si un amigo te preguntara honestamente por qué crees, ¿qué le dirías? Practícalo antes de que suceda."]},
+  {id:4,emoji:"📱",difficulty:"frequent",
+    title:'El video viral que dice: «La religión es pura manipulación.»',
+    tags:["redes sociales","duda"],
+    scene:"En tu feed aparece un video con millones de vistas. Tiene humor, tiene datos, tiene frases contundentes. El argumento central: la religión fue inventada para controlar a las masas.",
+    feel:"Duda genuina. El video es inteligente y bien producido. Una parte de ti piensa: ¿y si tiene razón? ¿Y si me están manipulando?",
+    avoid:["Aceptarlo como verdad sin buscar la contraparte — estás aplicando un estándar que no aplicarías a otro tema.","Ignorarlo — la duda que quedó en ti es real y merece respuesta.","Entrar en los comentarios a pelear — ese no es el lugar donde se resuelven preguntas importantes."],
+    say:["Hacerse la pregunta correcta: «¿Este video demuestra que Dios no existe, o demuestra que algunas personas usaron la religión para hacer daño?»","Buscar activamente voces del otro lado con el mismo nivel de rigor.","Hablar con alguien que pueda pensar el tema contigo — no para que te dé la respuesta, sino para procesar juntos."],
+    why:"Que algo haya sido abusado no prueba que sea falso. La medicina fue usada para torturar, la ciencia para crear armas, el amor para manipular. El abuso de una idea no refuta la idea — solo muestra que las personas pueden torcer cualquier cosa.",
+    fullAnswer:[
+      {label:"La pregunta clave que el video nunca se hace",them:"(El video afirma: «La religión fue inventada por el poder para controlar al pueblo.»)",you:"Pregúntate: ¿esto explica por qué miles de mártires murieron por su fe cuando hubieran podido salvarse negándola? ¿Por qué misioneros dejaron comodidad para ir a zonas remotas sin beneficio material? Si la religión fuera solo control, los que no tienen nada que ganar no deberían creer. Pero son los que más creen.",note:"El argumento del video tiene un problema lógico que vale la pena nombrar."},
+      {label:"Si alguien comparte el video contigo",them:"«¿Viste esto? Tiene razón en todo.»",you:"«Vi partes. Tiene puntos válidos — hubo gente que usó la religión para controlar, eso es histórico. Pero hay una pregunta que no responde: ¿eso prueba que Dios no existe, o solo que las personas pueden abusar de cualquier sistema? Son preguntas distintas.»",note:"No defiendes todo. Distingues entre lo que el video muestra (abusos reales) y lo que concluye (que la fe es falsa). Esa distinción es importante."},
+      {label:"Si quedas con la duda",them:"(Duda interna: ¿y si mi fe es solo condicionamiento?)",you:"Pregúntate: ¿qué evidencia me haría cambiar de posición? Si ninguna evidencia podría hacerte cambiar, eso sería creencia ciega. Pero si puedes nombrar qué te haría dudar más o menos, tu fe tiene estructura racional — no es solo condicionamiento.",note:"La fe que sobrevive el cuestionamiento honesto es más sólida que la que nunca fue cuestionada."}
+    ],
+    argument:{title:"Cómo analizar un argumento antes de aceptarlo",steps:[
+      {n:"1",text:"<strong>Separa el «qué pasó» del «qué significa».</strong> Que la Iglesia cometió abusos históricos es verdad. Que por eso Dios no existe es un salto lógico — una cosa no implica la otra."},
+      {n:"2",text:"<strong>Busca el incentivo del que habla.</strong> Los videos virales buscan vistas y engagement. Eso no los hace mentirosos, pero sí significa que tienen un ángulo. ¿Qué quedaría fuera del video para que encaje en 4 minutos?"},
+      {n:"3",text:"<strong>Aplica el mismo estándar a ambos lados.</strong> Si un video pro-ateísmo con datos te convence, ¿estarías dispuesto a ver un video del otro lado con el mismo nivel de apertura? Si no, el problema no es la evidencia — es el sesgo de confirmación."}
+    ],conclusion:"Una fe que no puede ser cuestionada no es fe — es comodidad. Una fe que sobrevive el cuestionamiento honesto es la más sólida que existe."},
+    phrases:["«¿Este argumento prueba que Dios no existe, o solo que hubo gente que usó la religión mal?»","«Me quedé pensando. Voy a buscar las dos partes antes de concluir algo.»","«El abuso de una idea no prueba que la idea sea falsa — si no, la ciencia también estaría descartada.»","«¿Qué evidencia te haría cambiar tu posición sobre esto?»"],
+    verse:{text:"No se amolden al mundo actual, sino sean transformados mediante la renovación de su mente.",ref:"Romanos 12:2"},
+    story:{text:"Vi ese tipo de video y me dejó muy confundido. Le pregunté a mi papá. Buscamos juntos. Encontramos que el video tenía datos mal citados e ignoraba información que complicaba su conclusión. Eso me enseñó algo más valioso que cualquier respuesta: a no aceptar un argumento solo porque está bien producido.",author:"Estudiante, 11 años"},
+    readings:[{type:"book",title:"¿Tiene sentido ser cristiano? — Lee Strobel",desc:"Periodista de investigación, ateo, que pasó años investigando las bases del cristianismo. Lo que encontró cambió su posición."},{type:"book",title:"Dios no es grande: una respuesta — John Lennox",desc:"Responde directamente los argumentos de Christopher Hitchens, uno de los críticos más articulados de la religión."}],
+    deeper:["¿Cómo sabes si una fuente es confiable? ¿Aplicás el mismo estándar a fuentes que dicen lo que querés escuchar?","¿Puede ser verdad que la religión fue usada para hacer daño Y que Dios existe? ¿Son preguntas que se contradicen?","Si alguien te preguntara qué te haría dudar de tu fe, ¿qué responderías?"]},
+  {id:5,emoji:"🍽️",difficulty:"intense",
+    title:'El familiar que cuestiona tu fe en la cena familiar.',
+    tags:["familia","debate"],
+    scene:"Reunión familiar. Un tío, un primo, o alguien mayor empieza con comentarios sobre religión — delante de todos. No es una pregunta. Es una provocación.",
+    feel:"Trampa. No puedes irte, no puedes pelear sin arruinar la reunión, y todos están mirando cómo reaccionas.",
+    avoid:["Entrar en un debate filosófico completo — no es el contexto y nadie va a cambiar de posición en una cena.","Callarte como si no tuvieras nada que decir — eso también comunica algo.","Ponerte emocional o defensivo — eso confirma el estereotipo de que la fe no resiste el cuestionamiento."],
+    say:["Responder brevemente y proponer continuar en otro momento: «Tengo razones para creer. Si querés hablarlo en serio en otro momento, con gusto.»","Usar el humor para descomprimir: «Parece que encontramos el tema de la noche.»","Reconocer la diferencia sin ceder: «Entiendo que pensamos diferente. Lo respeto — y espero que vos también.»"],
+    why:"Una cena familiar no es un foro filosófico. Tu objetivo no es ganar el debate — es mantener tu dignidad sin destruir la relación ni la reunión. Eso requiere estrategia, no argumentos.",
+    fullAnswer:[
+      {label:"Respuesta corta que cierra sin pelea",them:"«La religión es un invento para controlar a la gente. ¿Cómo podés creer en eso?»",you:"«Creo porque tengo razones para creer. No es por tradición ni por presión — es una decisión pensada. Si en algún momento querés escucharlas, con gusto hablamos.»",note:"Dijiste que tienes razones. Propusiste continuar en otro momento. No entraste en el debate ahora. Eso es todo lo que necesitas hacer."},
+      {label:"Si sigue presionando",them:"«Pero en serio — ¿no es todo inventado?»",you:"«Es una pregunta que vale la pena hacerse. Yo me la hice. Y encontré respuestas que me convencieron. Pero esta noche prefiero que comamos tranquilos. Si querés seguir después, acá estoy.»",note:"Repetís la misma oferta: hablar en serio en otro contexto. Eso no es evasión — es elegir cuándo y cómo dar esa conversación."},
+      {label:"Para bajar la tensión con humor",them:"(El tema se pone incómodo para todos)",you:"«Parece que encontramos el tema filosófico de la noche. ¿Quién quiere más de comer?»",note:"El humor bien usado rompe la tensión sin que nadie pierda. Todos se ríen, el tema cambia, y mostraste que no te desestabilizás."}
+    ],
+    argument:{title:"Lo que vale la pena saber antes de esta conversación",steps:[
+      {n:"1",text:"<strong>Elegir el contexto correcto es inteligencia, no cobardía.</strong> Los mejores debates ocurren cuando ambos participantes están tranquilos y abiertos. Una cena familiar no cumple ninguna de esas condiciones."},
+      {n:"2",text:"<strong>Proponer continuar después es una respuesta, no una evasión.</strong> Estás diciendo: «Tengo algo que decir sobre esto — pero no acá, no ahora.» Eso es más poderoso que entrar en un debate que no vas a poder terminar bien."},
+      {n:"3",text:"<strong>Tu comportamiento bajo presión es tu argumento más fuerte.</strong> Si respondés con calma, con humor, sin enojo — eso dice algo sobre lo que tu fe produce en vos. Y eso impacta más que cualquier argumento verbal."}
+    ],conclusion:"No perdés el debate por no darlo ahora. Lo ganás cuando elegís el momento y el contexto en el que vale la pena tenerlo."},
+    phrases:["«Creo porque tengo razones. Si querés escucharlas en serio, hablamos otro día.»","«Pensamos diferente en esto. Y está bien que así sea.»","«No voy a resolver esa pregunta esta noche — pero tampoco me voy a avergonzar de lo que creo.»","«Parece que encontramos el tema filosófico de la noche. ¿Quién quiere más de comer?»"],
+    verse:{text:"La respuesta amable aplaca el enojo, pero la respuesta dura enciende la ira.",ref:"Proverbios 15:1"},
+    story:{text:"Mi tío empezó con «la religión es el opio del pueblo» justo en Navidad. Dije: «Tío, con gusto hablamos de eso, pero no esta noche. ¿Me pasás el arroz?» Todos se rieron. El tema cambió. Semanas después mi tío me escribió preguntando si en serio quería hablar. Tuvimos la mejor conversación de nuestra vida.",author:"Joven, 15 años"},
+    readings:[{type:"book",title:"Conoce por qué crees — Paul Little",desc:"Manual práctico con respuestas concretas a las preguntas más comunes sobre la fe. Para leer antes de que llegue la próxima cena familiar."},{type:"book",title:"El caso de Cristo — Lee Strobel",desc:"Para cuando llegue la conversación en serio. Responde las preguntas históricas sobre Jesús con rigor periodístico."}],
+    deeper:["¿Cuándo vale la pena entrar en un debate y cuándo no? ¿Qué criterios usarías para decidir?","¿Cómo podés respetar a alguien con quien pensás diferente sin fingir que estás de acuerdo?","Si ese familiar te pidiera hablar en serio sobre la fe, ¿qué tres cosas querrías que entendiera?"]},
+  {id:6,emoji:"👥",difficulty:"intense",
+    title:'El grupo que te presiona a hacer algo contra tus valores.',
+    tags:["presión social","valores"],
+    scene:"El grupo quiere hacer algo que va contra lo que creés. La presión viene como pregunta: «¿Por qué no? ¿Tenés miedo?»",
+    feel:"El miedo a quedar afuera. La sensación de que decir que no te convierte en raro, en aburrido, en el que no sabe divertirse.",
+    avoid:["Ceder con la lógica de «solo por esta vez» — cada vez que cedés, la siguiente vez es más fácil ceder.","Dar un sermón sobre por qué lo que hacen está mal — no te pidieron que los juzgaras.","Huir sin decir nada — quedás como raro sin dar ninguna explicación, y eso genera más ruido que un «no» claro."],
+    say:["Ser directo sin dramatizar: «Eso no es para mí. Sin drama.»","Si la presión continúa: «Ya dije que no. Si eso es un problema, tenemos un problema diferente.»","Cambiar el tema con naturalidad, como si no hubiera pasado nada importante."],
+    why:"Los que realmente merecen tu amistad no van a dejar de serlo porque tenés límites. Los que sí lo hacen te están mostrando quiénes son — y esa información es valiosa.",
+    fullAnswer:[
+      {label:"El primer no — claro y sin drama",them:"«Vamos, todos lo hacemos. ¿Por qué vos no?»",you:"«No es para mí. Sin drama — sigan.»",note:"Nada más. No explicás. No te justificás. No pedís permiso. Un «no» claro dicho con calma comunica más seguridad que veinte explicaciones."},
+      {label:"Si la presión sigue",them:"«¿Tenés miedo? ¿Tu mamá te lo prohíbe? ¿Es por la iglesia?»",you:"«Tengo mis razones. No necesito convencerte de nada — solo te pido que respetes mi no.»",note:"Reconocés que preguntaron sin validar que la pregunta fue razonable. Ponés el límite claramente. Si siguen después de esto, el problema es de ellos — no tuyo."},
+      {label:"Si el ambiente se pone incómodo",them:"(Todos te miran, hay silencio raro)",you:"«Chicos, yo paso en esto. No significa que juzgue lo que hacen. Cada uno elige. ¿Qué hacemos después?»",note:"Normalizás tu posición y redirigís la energía del grupo. Mostrás que no te vas — solo que no participás en esto."}
+    ],
+    argument:{title:"Por qué la presión de grupo es una trampa que se puede ver venir",steps:[
+      {n:"1",text:"<strong>La presión de grupo funciona porque activa el miedo al rechazo.</strong> Ese miedo es real y válido — pero no es una razón suficiente para hacer algo que va contra lo que creés. Preguntate: ¿el problema soy yo, o son ellos por no respetar un no?"},
+      {n:"2",text:"<strong>Un límite claro elimina la ambigüedad.</strong> Cuando dudás o vaciás, das señales de que tal vez se pueda convencerte. Un «no» claro sin explicación cierra esa puerta. Las personas generalmente respetan más una posición firme que una negativa vacilante."},
+      {n:"3",text:"<strong>Lo que elegís bajo presión define quién sos, no lo que decís que sos.</strong> Cualquiera puede tener valores cuando no cuestan nada. Lo que mostrás cuando hay costo real es el verdadero test."}
+    ],conclusion:"No tenés que convencer a nadie de que tu límite es válido. Solo tenés que sostenerlo."},
+    phrases:["«No es para mí. Sin drama.»","«Ya dije que no. Si eso es un problema, tenemos un problema diferente.»","«Tengo mis razones — no necesito que las apruebes.»","«Paso en esto. ¿Qué hacemos después?»"],
+    verse:{text:"No te dejes vencer por el mal; al contrario, vence el mal con el bien.",ref:"Romanos 12:21"},
+    story:{text:"En una fiesta me presionaron durante media hora. Dije «no» de quince maneras distintas. Al final alguien del grupo dijo «ya, lo respeto» y siguieron. Nadie se fue. Nadie me dejó de hablar. Lo que sí cambió fue cómo me sentía conmigo mismo al volver a casa.",author:"Joven, 14 años"},
+    readings:[{type:"book",title:"Límites — Henry Cloud y John Townsend",desc:"El libro más claro que existe sobre cómo poner límites sin culpa y sin destruir relaciones."},{type:"book",title:"No conformes — Mark Matlock",desc:"Para jóvenes que quieren vivir su fe en ambientes de presión real."}],
+    deeper:["¿Alguna vez cediste algo pequeño y te arrepentiste? ¿Qué aprendiste de eso?","¿Cómo distinguís entre ser flexible y comprometerte en algo que no debería ser flexible?","Si tu mejor amigo te preguntara por qué tenés ese límite, ¿qué le explicarías?"]},
+  {id:7,emoji:"💔",difficulty:"intense",
+    title:'El amigo que perdió a alguien y dice: «Si Dios existiera, esto no habría pasado.»',
+    tags:["dolor","pérdida"],
+    scene:"Tu amigo acaba de perder a alguien. En medio del dolor dice: «Si Dios existiera de verdad, no hubiera dejado que esto pasara.»",
+    feel:"Impotencia. Querés ayudarlo pero no sabés qué decir. Y además su pregunta también te pega a vos — es una de las preguntas más difíciles que existen.",
+    avoid:["Dar una respuesta filosófica sobre el problema del mal — no es el momento y va a sonar frío.","Decir «Dios tiene un plan» o «todo pasa por algo» — suena vacío y puede sonar cruel cuando el dolor es fresco.","Cambiar de tema o huir del momento — lo dejás solo con lo más pesado que está cargando."],
+    say:["Primero, estar presente: «Estoy acá. No tengo respuesta para todo lo que sentís, pero no me voy.»","Reconocer el dolor sin resolverlo: «Tiene sentido que te sientas así. Es una pérdida real.»","Solo si él abre la puerta filosófica: «Yo también me hago esa pregunta. Es de las más difíciles que conozco.»"],
+    why:"Tu amigo no está haciendo un argumento filosófico — está gritando de dolor. No necesita respuestas todavía. Necesita compañía. Estar presente sin intentar resolver es la respuesta más poderosa en ese momento.",
+    fullAnswer:[
+      {label:"El primer momento — presencia, no argumento",them:"«Si Dios existiera, esto no hubiera pasado. No puedo creer en algo así.»",you:"«No voy a tratar de convencerte de nada ahora. Solo quiero que sepas que estoy acá.»",note:"Eso es todo. No respondés la pregunta teológica. Respondés a la persona. Ese es el movimiento correcto en este momento."},
+      {label:"Días después, si él retoma el tema",them:"«¿Cómo podés seguir creyendo en Dios después de algo así?»",you:"«Es una pregunta que me la hago también. Honestamente no tengo una respuesta que quite el dolor. Lo que sí tengo es la convicción de que Dios no es ajeno al sufrimiento — él mismo lo vivió. Pero entiendo que ahora eso no sea suficiente para vos.»",note:"Reconocés la dificultad de la pregunta. Compartís tu posición sin imponerla. Y no esperás que tu respuesta resuelva su dolor."},
+      {label:"Si pregunta más",them:"«¿Entonces por qué Dios deja que pase el sufrimiento?»",you:"«No tengo una respuesta completa. Lo que sí sé es que C.S. Lewis — que perdió a su esposa y casi pierde su fe — llegó a la conclusión de que el dolor es real, Dios es real, y ambas cosas coexisten de una manera que no entendemos completamente. No sé si eso ayuda, pero es lo más honesto que puedo decirte.»",note:"Respondés con honestidad intelectual. No fingís tener todo claro. Y mostrás que la pregunta fue tomada en serio por personas muy serias."}
+    ],
+    argument:{title:"El problema del mal — lo que vale la pena entender",steps:[
+      {n:"1",text:"<strong>El sufrimiento no prueba automáticamente que Dios no existe.</strong> Prueba que el mundo es un lugar donde el sufrimiento existe. La pregunta es si un Dios bueno podría tener razones para permitir sufrimiento que nosotros no vemos. Muchos filósofos coinciden en que esa posibilidad no puede descartarse."},
+      {n:"2",text:"<strong>El argumento del mal es emocionalmente poderoso pero filosóficamente incompleto.</strong> Para que funcione como prueba de que Dios no existe, necesitarías demostrar que ningún bien posible podría justificar ningún sufrimiento. Eso es muy difícil de sostener."},
+      {n:"3",text:"<strong>El cristianismo no promete un mundo sin sufrimiento.</strong> Promete presencia en el sufrimiento. Dios mismo, en la figura de Jesús, vivió dolor, abandono y muerte injusta. Eso no lo aleja del sufrimiento humano — lo pone en el centro de él."}
+    ],conclusion:"No tenés que resolver el problema del mal para acompañar a alguien. Y no tenés que tener todo claro para seguir creyendo."},
+    phrases:["«No voy a tratar de convencerte de nada. Solo quiero que sepas que estoy acá.»","«Eso duele. Y tiene sentido que duela.»","«Yo también me hago esa pregunta. No tengo una respuesta que quite el dolor.»","«Cuando quieras hablar — de lo que sea — acá estoy.»"],
+    verse:{text:"Lloren con los que lloran.",ref:"Romanos 12:15"},
+    story:{text:"Mi amiga perdió a su mamá y me dijo que Dios no existía. No dije nada teológico. Me quedé ahí, dos horas. A veces hablamos, a veces no. Semanas después me escribió: «Lo que más me ayudó fue que no intentaste explicarme nada.»",author:"Joven, 13 años"},
+    readings:[{type:"book",title:"Una pena en observación — C.S. Lewis",desc:"Lewis escribió esto después de perder a su esposa. Honesto, doloroso y real. Muestra a alguien que casi pierde la fe y cómo navegó eso."},{type:"book",title:"El problema del dolor — C.S. Lewis",desc:"Para cuando estés listo para la versión filosófica de la misma pregunta. Más analítico — pero igualmente honesto."}],
+    deeper:["¿Cuál es la diferencia entre acompañar a alguien en su dolor y tratar de resolver su dolor? ¿Por qué importa esa diferencia?","¿Podés creer en Dios y al mismo tiempo no entender por qué permite el sufrimiento? ¿Esas dos cosas se contradicen?","Si alguien cercano te preguntara hoy «¿por qué permite Dios el sufrimiento?», ¿qué responderías honestamente?"]},
+  {id:8,emoji:"🏫",difficulty:"complex",
+    title:'El debate en clase donde sos el único cristiano.',
+    tags:["escuela","debate"],
+    scene:"En clase de filosofía, historia o ética, el tema del día involucra religión. La mayoría parece estar del mismo lado. Cuando hablás, todos te miran — esperan que seas el «representante del bando religioso».",
+    feel:"Soledad intelectual. La sensación de que tenés que defender algo enorme completamente solo, sin preparación, delante de todos.",
+    avoid:["No decir nada para evitar el conflicto — tu perspectiva es válida y su ausencia también dice algo.","Hablar como si estuvieras predicando — en ese contexto tenés que argumentar, no evangelizar.","Intentar que todos cambien de posición — no es el objetivo, y tratar de lograrlo te hace perder efectividad."],
+    say:["Hablar como alguien que piensa, no como alguien que predica: «Desde mi perspectiva, hay algo que no cierra en ese argumento.»","Hacer preguntas que abran el debate: «¿Cómo responderían a la evidencia de X?»","Mostrar que conocés el otro lado: «Entiendo ese argumento. Mi dificultad con él es la siguiente.»"],
+    why:"No necesitás ganar el debate. Necesitás participar con dignidad y mostrar que la fe puede articularse racionalmente. Un joven que habla con calma, con evidencia y sin enojo hace más por la fe que cualquier argumento perfecto.",
+    fullAnswer:[
+      {label:"Cómo entrar al debate",them:"(El profesor o un compañero hace una afirmación que te parece incorrecta)",you:"«Tengo una perspectiva diferente sobre eso. ¿Puedo plantear una pregunta?»",note:"Pedís permiso para hablar. Eso muestra respeto y captura la atención del grupo. Es mejor que interrumpir."},
+      {label:"Sobre evolución y fe",them:"«La evolución demostró que no necesitamos a Dios para explicar el origen de la vida.»",you:"«La evolución explica muy bien cómo se desarrollaron las especies. Pero hay preguntas que quedan sin responder: por qué existe el universo en lugar de nada, por qué hay leyes de la física que permiten la vida, por qué existe la conciencia. ¿Eso no queda abierto?»",note:"No estás negando la evolución. Estás señalando los límites de lo que explica. Eso es filosóficamente sólido."},
+      {label:"Sobre moralidad sin Dios",them:"«No necesitamos a Dios para tener moral. Los humanos nos ponemos de acuerdo.»",you:"«Si la moral es solo un acuerdo humano, ¿en qué base decimos que la esclavitud estuvo mal? La mayoría estuvo de acuerdo con ella durante siglos. Si el acuerdo es lo que define lo correcto, ¿cómo condenamos lo que fue aceptado?»",note:"Esta pregunta abre algo que la posición secular tiene que responder. No tenés respuesta perfecta — pero la pregunta es suficiente."}
+    ],
+    argument:{title:"Las herramientas intelectuales que necesitás para este debate",steps:[
+      {n:"1",text:"<strong>La diferencia entre ciencia y filosofía.</strong> La ciencia responde el cómo. La filosofía responde el por qué. «¿Existe Dios?» es una pregunta filosófica — no puede responderse con un experimento. Eso no la invalida, la ubica en el campo correcto."},
+      {n:"2",text:"<strong>El argumento cosmológico en lenguaje simple.</strong> Todo lo que existe tiene una causa. El universo existe. Por lo tanto, el universo tuvo una causa exterior al universo — exterior al espacio y al tiempo. Eso es lo que el teísmo llama Dios. No prueba el Dios del evangelio, pero sí muestra que creer en un creador es racionalmente defendible."},
+      {n:"3",text:"<strong>La pregunta del fundamento moral.</strong> Si no hay Dios, ¿en qué se basa la moralidad? Si es un acuerdo humano, puede cambiar con la mayoría. Si es evolución, es solo lo que ayuda a sobrevivir — no lo que es «verdaderamente bueno». Muchos filósofos ateos reconocen que este es el punto más difícil de su posición."}
+    ],conclusion:"En un debate, hacer la pregunta correcta vale más que tener la respuesta perfecta."},
+    phrases:["«Hay algo en ese argumento que no cierra. ¿Puedo plantear una pregunta?»","«La evolución explica cómo, no por qué. ¿Eso no deja algo abierto?»","«Si la moral es solo un acuerdo, ¿en qué base decimos que la esclavitud estuvo mal?»","«Entiendo el argumento. Mi dificultad es la siguiente.»"],
+    verse:{text:"Estén siempre preparados para dar respuesta a todo el que les pida razón de la esperanza que hay en ustedes, pero háganlo con gentileza y respeto.",ref:"1 Pedro 3:15"},
+    story:{text:"En un debate sobre evolución, levanté la mano y pregunté: «¿La evolución explica por qué existe la conciencia?» Nadie supo responder. El profesor dijo «es una buena pregunta». No gané nada ese día — pero la pregunta se quedó en el aire. Después de clase dos compañeros me preguntaron si había libros sobre eso.",author:"Estudiante, 14 años"},
+    readings:[{type:"book",title:"Dios no está muerto — Rice Broocks",desc:"Respuestas claras y bien organizadas para los argumentos más comunes contra la fe. Ideal para leer antes de un debate."},{type:"book",title:"Grandes preguntas — William Lane Craig",desc:"Filosofía de la religión en lenguaje accesible. Cubre cosmología, moral, resurrección."}],
+    deeper:["¿Qué diferencia hay entre defender tu fe e imponer tu fe? ¿Cómo te asegurás de estar haciendo lo primero?","¿Cuáles son los dos o tres argumentos más sólidos que podrías hacer a favor de la existencia de Dios?","Si alguien en ese debate hiciera un punto que no pudieras responder en el momento, ¿qué harías?"]},
+  {id:9,emoji:"🌧️",difficulty:"complex",
+    title:'El momento en que vos mismo empezás a dudar.',
+    tags:["duda","interior"],
+    scene:"No viene de afuera. Viene de adentro. Leíste algo, viviste algo, o simplemente en un momento quieto te preguntaste: ¿y si todo esto no es verdad?",
+    feel:"Miedo de la duda misma. La sensación de que dudar ya significa que perdiste la fe. Tal vez vergüenza — como si fuera una traición.",
+    avoid:["Ignorar la duda y fingir que no existe — las dudas ignoradas vuelven más grandes.","Concluir que dudar significa que la fe es falsa — la duda es el inicio de una pregunta, no la respuesta.","Buscar solución rápida en videos de 3 minutos — las preguntas serias merecen respuestas serias."],
+    say:["Escribir la duda con precisión: ¿qué exactamente no cuadra? ¿Es intelectual, emocional, o social?","Hablar con alguien que pueda escuchar sin asustarse ni darte respuestas automáticas.","Buscar autores que se hicieron esa misma pregunta con honestidad — los hay, y sus respuestas son sólidas."],
+    why:"La duda no es el enemigo de la fe — es el comienzo de una fe más sólida. Una fe que nunca fue cuestionada no sabe realmente por qué cree. Una fe que sobrevivió la duda honesta tiene raíces.",
+    fullAnswer:[
+      {label:"Cuando la duda aparece en silencio",them:"(Pensamiento interno: ¿Y si Dios no existe? ¿Y si todo es una ilusión?)",you:"Primero, nombrala. ¿Qué es exactamente lo que dudás? ¿La existencia de Dios en general? ¿La verdad de la Biblia? ¿La experiencia personal que tenías? Las dudas vagas son las más difíciles. Las dudas precisas tienen respuestas precisas. Escribirla te ayuda a verla.",note:"Lo que no podés nombrar, no podés responder."},
+      {label:"Cuando alguien nota que algo cambió",them:"«¿Estás pasando por algo con la fe? Te noto diferente.»",you:"«Sí, estoy con algunas preguntas. No es una crisis — es que quiero entender mejor lo que creo. ¿Podemos hablar?»",note:"Nombrar la duda en voz alta no la hace más real — la hace más manejable. Pedirle a alguien que acompañe es más sabio que atravesarlo solo."},
+      {label:"Si alguien te pregunta si todavía creés",them:"«¿Seguís siendo cristiano? Te noto diferente.»",you:"«Estoy en un momento de preguntas. No sé exactamente dónde estoy parado en todo. Lo que sí sé es que quiero entender — no solo creer porque me lo dijeron.»",note:"Eso es honesto. Y honesto es mejor que fingir certeza que no tenés."}
+    ],
+    argument:{title:"Lo que la duda dice sobre vos — y lo que no dice",steps:[
+      {n:"1",text:"<strong>La duda es una señal de que tomás en serio lo que creés.</strong> El que nunca duda es el que nunca pensó. La duda honesta es evidencia de que tu fe no es superficial — es evidencia de que querés que sea real."},
+      {n:"2",text:"<strong>Tres tipos de duda — y tres respuestas distintas.</strong> La duda intelectual (no entiendo el argumento) necesita estudio. La duda emocional (algo que viví me alejó de Dios) necesita proceso y acompañamiento. La duda social (me cuesta defenderlo públicamente) necesita comunidad. Identificar cuál es la tuya cambia completamente cómo responderla."},
+      {n:"3",text:"<strong>C.S. Lewis fue ateo.</strong> No de nacimiento — fue alguien que investigó, dudó, y llegó a la fe después de años de búsqueda honesta. Su caso muestra que el camino de vuelta a la fe puede pasar por la duda — no a pesar de ella."}
+    ],conclusion:"«Señor, creo. Ayúdame en mi incredulidad.» — Marcos 9:24. Eso también es oración. Y es la más honesta que existe."},
+    phrases:["«Estoy en un momento de preguntas. Eso no me asusta — quiero entender.»","«Dudé, y eso me llevó a buscar. Lo que encontré me convenció más que antes.»","«La fe que sobrevivió el cuestionamiento es más sólida que la que nunca fue cuestionada.»","«No sé todo. Pero sé suficiente para seguir.»"],
+    verse:{text:"Buscad y hallaréis; llamad y se os abrirá.",ref:"Mateo 7:7"},
+    story:{text:"A los 13 años dejé de creer durante meses. No se lo dije a nadie porque me daba vergüenza. Empecé a leer — C.S. Lewis, Lee Strobel, el evangelio de Juan. Fui encontrando respuestas a preguntas que ni sabía que tenía. Hoy creo más que antes y sé por qué. La duda fue el mejor regalo que me pudo pasar.",author:"Joven, 16 años"},
+    readings:[{type:"book",title:"Mero Cristianismo — C.S. Lewis",desc:"El libro más recomendado para alguien que duda. Escrito por alguien que dudó durante mucho tiempo antes de creer."},{type:"book",title:"El caso de Cristo — Lee Strobel",desc:"Un periodista ateo que investigó con escepticismo total. Lo que encontró lo convenció. Ideal para quien quiere seguir el proceso de investigación."}],
+    deeper:["¿Qué diferencia hay entre una duda intelectual y una herida emocional disfrazada de duda? ¿Cómo identificarías cuál es la tuya?","¿Qué evidencia o argumento te haría recuperar la confianza en lo que creés? ¿Ya buscaste eso?","Si alguien cercano te dijera que está dudando, ¿qué le dirías? ¿Eso te dice algo sobre cómo deberías tratarte a vos mismo?"]},
+  {id:10,emoji:"❓",difficulty:"complex",
+    title:'La pregunta que no tiene respuesta fácil — y alguien te la cobra.',
+    tags:["preguntas difíciles","honestidad"],
+    scene:"Alguien te hace una pregunta difícil sobre la fe — sobre el infierno, sobre quienes no escucharon el evangelio, sobre los milagros, sobre el mal — y espera una respuesta completa ahora mismo.",
+    feel:"Presión de tener todas las respuestas. Vergüenza si no las tenés. La sensación de que no poder responder equivale a que tu fe no tiene base.",
+    avoid:["Inventar una respuesta que no tenés — se nota, y perdés credibilidad para futuras conversaciones.","Responder «simplemente hay que tener fe» a una pregunta intelectual seria — es esquivar, no responder.","Reaccionar defensivamente como si la pregunta fuera un ataque — a veces es una pregunta genuina."],
+    say:["Ser honesto: «No tengo una respuesta completa para eso ahora. Prefiero decirte eso que inventar algo.»","Mostrar que la pregunta te importa: «Es una buena pregunta. ¿Puedo buscarlo y volverte con algo más sólido?»","Señalar que no saber una respuesta no significa que no la haya: «Que yo no sepa no significa que no exista respuesta.»"],
+    why:"La integridad intelectual — admitir lo que no sabés — genera más confianza que fingir que lo tenés todo claro. Nadie espera que tengas todas las respuestas. Sí esperan que seas honesto.",
+    fullAnswer:[
+      {label:"La respuesta honesta que funciona",them:"«¿Qué pasa con alguien que nunca escuchó hablar de Dios? ¿Va al infierno?»",you:"«Es una de las preguntas más difíciles que conozco — y no tengo una respuesta que me satisfaga completamente. Lo que sí sé es que el Dios en el que creo es perfectamente justo. Confío en que su juicio sobre cada persona va a ser completamente justo, incluso en casos que yo no entiendo. Pero honestamente, no tengo la respuesta completa.»",note:"Respondés con lo que sabés, reconocés lo que no sabés, y mostrás en qué basás tu confianza a pesar de la incertidumbre. Eso es más honesto y más poderoso que una respuesta fabricada."},
+      {label:"Cuando la pregunta es sobre los milagros",them:"«¿Cómo podés creer en milagros en el siglo XXI? Eso es anticientífico.»",you:"«Decir que los milagros son imposibles es una presuposición filosófica, no una conclusión científica. La ciencia describe lo que pasa normalmente — no puede probar que nada puede pasar fuera de lo normal. La pregunta real es si Dios existe. Si existe, los milagros son posibles por definición.»",note:"No necesitás defender cada milagro individual. Necesitás mostrar que el rechazo a los milagros descansa en una presuposición filosófica — no en evidencia."},
+      {label:"Cuando realmente no tenés nada",them:"«¿Por qué permite Dios el sufrimiento de los inocentes?»",you:"«No tengo una respuesta que quite el peso de esa pregunta. Es de las más difíciles que existen. Lo que sí puedo decirte es que personas mucho más inteligentes que yo se hicieron esa pregunta — C.S. Lewis, Alvin Plantinga, John Polkinghorne — y ninguno llegó a la conclusión de que Dios no existe. Si querés, podemos leer juntos lo que dicen.»",note:"Reconocés la dificultad. Mostrás que no la estás ignorando. Y ofrecés seguir el proceso juntos."}
+    ],
+    argument:{title:"Las preguntas más difíciles — y cómo navegarlas",steps:[
+      {n:"1",text:"<strong>No saber una respuesta no invalida tu fe.</strong> Un médico que no conoce todos los mecanismos de una enfermedad no deja de creer en la medicina. La fe puede ser racionalmente fundada aunque haya preguntas sin respuesta todavía."},
+      {n:"2",text:"<strong>Muchas preguntas difíciles tienen respuestas parciales que valen la pena conocer.</strong> El problema del mal, el destino de quienes no escucharon el evangelio, la compatibilidad de omnisciencia y libre albedrío — todas tienen literatura filosófica seria. No tenés que inventar las respuestas — tenés que encontrar a quienes ya las trabajaron."},
+      {n:"3",text:"<strong>La honestidad intelectual construye más confianza que las respuestas perfectas.</strong> Si decís «no sé, pero te cuento lo que sí sé», la gente confía más en vos que si fingís tener todo claro. Y cuando volvés con una respuesta real, esa respuesta tiene más peso."}
+    ],conclusion:"El objetivo no es tener todas las respuestas. Es mostrar que las preguntas difíciles merecen ser tomadas en serio — y que vos las tomás en serio."},
+    phrases:["«No tengo esa respuesta lista. Prefiero decirte eso que inventar algo.»","«Es una pregunta que merece más que lo que puedo darte ahora. ¿Puedo buscarlo?»","«Que yo no sepa no significa que no haya respuesta — significa que todavía no la encontré.»","«Hay personas muy inteligentes que se hicieron esa pregunta. ¿Querés que lo exploremos juntos?»"],
+    verse:{text:"Fíate del Señor con todo tu corazón, y no te apoyes en tu propia prudencia.",ref:"Proverbios 3:5"},
+    story:{text:"Me preguntaron: «¿Qué pasa con alguien que nunca escuchó del evangelio?» Dije: «No lo sé. Pero me parece una pregunta importante — ¿podemos buscar juntos?» Terminamos leyendo durante una semana. Al final los dos teníamos más preguntas que respuestas. Pero algo había cambiado — ya no estábamos solos con la pregunta.",author:"Joven, 15 años"},
+    readings:[{type:"book",title:"Preguntas difíciles, respuestas reales — Josh McDowell",desc:"Uno de los mejores recursos para las preguntas que más incomodan. Respuestas directas con evidencia real."},{type:"book",title:"Si Dios es bueno — Randy Alcorn",desc:"El libro más completo sobre el problema del mal y el sufrimiento desde una perspectiva cristiana."}],
+    deeper:["¿Cuál es la pregunta sobre la fe que más te cuesta responder? ¿Ya buscaste una respuesta seria para esa pregunta?","¿Cómo diferenciás entre una pregunta que tiene respuesta (aunque vos no la sepás) y una que genuinamente no la tiene?","Si alguien volviera a hacerte esa pregunta difícil en una semana, ¿qué harías diferente esta vez?"]}
+];
+
+const QUIZ=[
+  {q:"¿Cuál es la situación que más te preocupa?",sub:"Elige la que más te genera ansiedad ahora mismo.",opts:["La presión de mis amigos o grupo","Las preguntas intelectuales sobre la fe","Las situaciones en familia","Mis propias dudas internas"]},
+  {q:"¿Dónde sientes más la presión?",sub:"Elige el ambiente donde es más difícil.",opts:["En la escuela","Con amigos y grupos sociales","En redes sociales","En casa o en familia"]},
+  {q:"¿Cómo describes tu fe ahora mismo?",sub:"Sé honesto — no hay respuesta correcta.",opts:["Firme, pero a veces me cuesta defenderla","Con dudas que quiero resolver","En construcción — no tengo todo claro","Convencido/a pero solo en mi entorno"]},
+  {q:"¿Qué quieres aprender más?",sub:"Elige lo que más necesitas ahora.",opts:["Qué decir cuando me atacan","Cómo manejarme cuando no sé la respuesta","Cómo ayudar a alguien que está sufriendo","Cómo sobrevivir debates sin perder la calma"]},
+  {q:"Una última cosa — ¿cuál es tu mayor miedo?",sub:"Elige el que se acerca más.",opts:["Perder amigos por mi fe","Que me hagan preguntas que no puedo responder","Que alguien que quiero rechace lo que creo","Darme cuenta de que me equivoqué en algo que creía"]}
+];
+
+const GLOSS=[
+  {term:"Apologética",def:"El arte de dar razones para lo que creemos. No es pelear — es explicar con lógica y respeto por qué la fe cristiana tiene sentido."},
+  {term:"Argumento cosmológico",def:"El universo tuvo un comienzo. Todo lo que comienza a existir tiene una causa. Por lo tanto, el universo tiene una causa exterior a él mismo."},
+  {term:"Argumento ontológico",def:"Argumento filosófico que define a Dios como el ser más grande concebible, y concluye que ese ser debe existir en la realidad y no solo en la mente."},
+  {term:"Argumento del diseño",def:"El universo muestra evidencia de diseño inteligente — leyes físicas ajustadas con precisión extraordinaria que hacen posible la vida."},
+  {term:"Ateísmo",def:"La posición de que Dios no existe. Es una postura filosófica — no una conclusión científica."},
+  {term:"Agnosticismo",def:"La posición de que no se puede saber si Dios existe. El agnóstico no afirma que Dios no existe, sino que no lo sabe."},
+  {term:"Big Bang",def:"El momento inicial del universo según la cosmología moderna. Implica que el universo tuvo un comienzo — lo que plantea la pregunta sobre su causa."},
+  {term:"Canon bíblico",def:"El conjunto de libros reconocidos como Escritura. Su selección fue un proceso histórico que duró siglos."},
+  {term:"Deísmo",def:"La creencia en un Dios creador que no interviene en el mundo. Diferente al teísmo cristiano, donde Dios se relaciona personalmente con su creación."},
+  {term:"Evidencialismo",def:"Método apologético que defiende la fe a partir de evidencias históricas, científicas y filosóficas."},
+  {term:"Evolución",def:"Teoría científica que describe cómo las especies cambian con el tiempo. No responde por qué existe la vida, la conciencia o el universo."},
+  {term:"Existencialismo",def:"Corriente filosófica que pone la existencia individual en el centro. Algunos existencialistas son ateos; otros, creyentes."},
+  {term:"Fe",def:"En el sentido bíblico, no es creer sin evidencias — es confiar basado en evidencia y experiencia. Como confiar en un médico o en un avión."},
+  {term:"Hermenéutica",def:"El arte de interpretar textos. En el contexto bíblico: cómo leer la Biblia considerando género literario, contexto histórico y cultural."},
+  {term:"Inspiración bíblica",def:"La creencia de que Dios guió a los autores humanos de la Biblia — usando sus estilos y personalidades — para transmitir su revelación."},
+  {term:"Materialismo",def:"La posición filosófica de que solo existe la materia y sus interacciones. No hay alma, espíritu, ni nada no material."},
+  {term:"Milagro",def:"Una intervención sobrenatural en el curso natural de los eventos. Decir que son imposibles es una postura filosófica, no científica."},
+  {term:"Naturalismo",def:"La visión de que el universo es un sistema cerrado sin posibilidad de intervención sobrenatural. Es una presuposición filosófica."},
+  {term:"Nihilismo",def:"La posición de que nada tiene sentido o valor inherente. Consecuencia lógica del ateísmo materialista."},
+  {term:"Panteísmo",def:"La creencia de que Dios y el universo son lo mismo. Diferente al teísmo cristiano, que distingue entre el Creador y la creación."},
+  {term:"Pluralismo religioso",def:"La posición de que todas las religiones son igualmente válidas. Diferente a la postura cristiana exclusiva."},
+  {term:"Posmodernismo",def:"Corriente filosófica que cuestiona la existencia de verdades objetivas universales. Influye en cómo muchos jóvenes entienden la fe."},
+  {term:"Problema del mal",def:"Si Dios es bueno y todopoderoso, ¿por qué existe el mal? Una de las objeciones más discutidas en filosofía de la religión."},
+  {term:"Relativismo moral",def:"La posición de que la moralidad es subjetiva. Sin Dios, la moral pierde fundamento objetivo."},
+  {term:"Resurrección",def:"El evento central del cristianismo: Jesús murió y resucitó al tercer día. Es una afirmación histórica, no solo espiritual."},
+  {term:"Secularismo",def:"La separación de la esfera pública de la influencia religiosa. No es necesariamente ateísmo."},
+  {term:"Teísmo",def:"La creencia en un Dios personal que creó el universo y se relaciona con él."},
+  {term:"Teodicea",def:"El intento de justificar la bondad de Dios ante la existencia del mal y el sufrimiento en el mundo."},
+  {term:"Verdad objetiva",def:"Una verdad que existe independientemente de lo que alguien piense o sienta. El cristianismo afirma que hay verdades objetivas sobre Dios y la moral."},
+  {term:"Worldview",def:"Cosmovisión — el conjunto de creencias y valores que determinan cómo una persona interpreta la realidad y toma decisiones."}
+];
+
+const EXTRAS={
+  frases:{title:"Frases que funcionan de verdad",subtitle:"Cortas, naturales, sin sonar ensayado.",icon:"💬",color:"#1E3A5F",sections:[
+    {title:"Cuando te atacan",items:["«¿Qué te hace pensar eso? Me interesa entender.»","«Creo porque tengo razones. ¿Quieres escucharlas?»","«Eso es una posición. No es un hecho.»","«Puedes no compartirlo. Lo respeto.»"]},
+    {title:"Cuando no tienes la respuesta",items:["«No lo sé. Y prefiero decirte eso que inventar algo.»","«Es una buena pregunta. Dame tiempo para pensar.»","«Podemos investigar juntos si quieres.»","«El que yo no sepa no significa que no haya respuesta.»"]},
+    {title:"Cuando quieres abrir una conversación",items:["«¿Por qué piensas eso? Tengo curiosidad.»","«¿Qué te llevaría a considerar que podrías estar equivocado?»","«Me interesa entender tu punto antes de responder.»","«¿Puedo hacerte una pregunta sobre eso?»"]},
+    {title:"Cuando quieres cerrar una conversación",items:["«Pensamos diferente en esto. Y está bien.»","«No creo que lleguemos a un acuerdo hoy.»","«Si en algún momento quieres hablar más, estoy.»","«Este no es el momento. Seguimos otro día.»"]}
+  ]},
+  dudas:{title:"Cuando no sabes qué decir",subtitle:"La duda no es el final. Es el comienzo de una fe más sólida.",icon:"🤔",color:"#C9A84C",sections:[
+    {title:"Primero, entiende qué tipo de duda es",items:["¿Es intelectual? Una pregunta sin respuesta clara todavía.","¿Es emocional? Algo que viviste te alejó de Dios, aunque intelectualmente sigas creyendo.","¿Es social? Crees, pero te da vergüenza mostrarlo.","Cada tipo necesita una respuesta diferente."]},
+    {title:"Lo que sí funciona",items:["Escribir la duda con precisión — la claridad reduce la ansiedad.","Hablar con alguien que pueda escuchar sin asustarse.","Buscar libros o recursos serios sobre el tema.","Darte tiempo — no todas las preguntas se responden en una semana."]},
+    {title:"Lo que no funciona",items:["Ignorarla y esperar que desaparezca — vuelve más grande.","Buscar respuestas solo en videos de 3 minutos.","Concluir que dudar significa que la fe es falsa.","Quedarte solo con la duda sin hablarla con nadie."]},
+    {title:"Para recordar",items:["C.S. Lewis fue ateo durante años antes de convertirse después de investigar.","«Señor, creo. Ayúdame en mi incredulidad.» — Marcos 9:24. Eso también es oración.","La duda honesta y la fe profunda no son opuestos — son compañeros.","Nadie tiene todo claro. El que dice que sí, probablemente no ha pensado suficiente."]}
+  ]}
+};
+
+// ══════════════════════════════════════════════════════
+// STATE
+// ══════════════════════════════════════════════════════
+let S = {
+  user: null,
+  completed: [],    // array of sit ids
+  diary: {},        // id -> string
+  streak: 0,
+  lastVisit: null,
+  startDate: null,  // ISO date string — day 0 (when user registered)
+  unlockedCount: 1, // how many are currently unlocked (starts at 1)
+  currentSit: null,
+  prevScreen: 'screen-home'
+};
+
+function save(){ try{ localStorage.setItem('kit_v4', JSON.stringify(S)); }catch(e){} }
+function load(){
+  try{
+    const d = localStorage.getItem('kit_v4');
+    if(d){ S = {...S, ...JSON.parse(d)}; return true; }
+  }catch(e){}
+  return false;
+}
+
+// ══════════════════════════════════════════════════════
+// UNLOCK LOGIC
+// One new situation unlocks each day IF the previous one is completed.
+// Situation 1 is always unlocked on day 0.
+// Situation N unlocks on day N-1 only if situation N-1 is completed.
+// ══════════════════════════════════════════════════════
+function daysSinceStart(){
+  if(!S.startDate) return 0;
+  const start = new Date(S.startDate);
+  const now   = new Date();
+  start.setHours(0,0,0,0); now.setHours(0,0,0,0);
+  return Math.floor((now - start) / 86400000);
+}
+
+function computeUnlocked(){
+  // Always 1 unlocked at minimum.
+  // For each sit from 2..10: unlock if (daysSinceStart >= id-1) AND previous sit is completed.
+  let maxUnlocked = 1;
+  const days = daysSinceStart();
+  for(let i = 1; i < SITS.length; i++){
+    const sit = SITS[i];
+    const prev = SITS[i-1];
+    if(days >= i && S.completed.includes(prev.id)){
+      maxUnlocked = sit.id;
+    } else {
+      break; // chain breaks — no skipping
+    }
+  }
+  S.unlockedCount = maxUnlocked;
+  save();
+  return maxUnlocked;
+}
+
+function isUnlocked(id){ return id <= S.unlockedCount; }
+function isCompleted(id){ return S.completed.includes(id); }
+
+// ══════════════════════════════════════════════════════
+// SCREENS
+// ══════════════════════════════════════════════════════
+function showScreen(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo(0,0);
+}
+function goBack(){ showScreen(S.prevScreen||'screen-home'); }
+
+// MODAL
+function openModal(id){ document.getElementById(id).classList.add('open'); }
+function closeModal(id){ document.getElementById(id).classList.remove('open'); }
+document.querySelectorAll('.modal-overlay').forEach(m=>m.addEventListener('click',e=>{if(e.target===m)m.classList.remove('open');}));
+
+// TOAST
+let tT;
+function toast(msg){ const el=document.getElementById('toast'); el.textContent=msg; el.classList.add('show'); clearTimeout(tT); tT=setTimeout(()=>el.classList.remove('show'),3000); }
+
+// ══════════════════════════════════════════════════════
+// WELCOME
+// ══════════════════════════════════════════════════════
+let selAge = null;
+document.getElementById('input-name').addEventListener('input', validateW);
+document.querySelectorAll('.age-btn').forEach(b=>b.addEventListener('click',()=>{
+  document.querySelectorAll('.age-btn').forEach(x=>x.classList.remove('selected'));
+  b.classList.add('selected'); selAge=b.dataset.age; validateW();
+}));
+function validateW(){ document.getElementById('btn-start').disabled=!(document.getElementById('input-name').value.trim()&&selAge); }
+document.getElementById('btn-start').addEventListener('click',()=>{
+  S.user={ name: document.getElementById('input-name').value.trim(), age: selAge };
+  S.startDate = new Date().toISOString().split('T')[0];
+  S.unlockedCount = 1;
+  save();
+  startQuiz();
+});
+function resetUser(){
+  if(!confirm('¿Quieres empezar de cero? Esto borrará todo tu progreso.')) return;
+  localStorage.removeItem('kit_v4');
+  location.reload();
+}
+
+// ══════════════════════════════════════════════════════
+// QUIZ (purely for personalisation feel — no ordering effect)
+// ══════════════════════════════════════════════════════
+let qStep = 0;
+function startQuiz(){ qStep=0; renderQ(); showScreen('screen-quiz'); }
+function renderQ(){
+  const q = QUIZ[qStep];
+  document.getElementById('quiz-progress').innerHTML = QUIZ.map((_,i)=>`<div class="quiz-dot${i<qStep?' done':i===qStep?' active':''}"></div>`).join('');
+  document.getElementById('quiz-q').textContent = q.q;
+  document.getElementById('quiz-sub').textContent = q.sub;
+  document.getElementById('quiz-options').innerHTML = q.opts.map((o,i)=>`<button class="quiz-opt" onclick="selQ(${i})">${o}</button>`).join('');
+}
+function selQ(i){
+  document.querySelectorAll('.quiz-opt').forEach((b,j)=>b.classList.toggle('selected',j===i));
+  setTimeout(()=>{ qStep++; if(qStep<QUIZ.length) renderQ(); else finishQuiz(); }, 320);
+}
+function finishQuiz(){
+  computeUnlocked();
+  initHome();
+  showScreen('screen-home');
+}
+
+// ══════════════════════════════════════════════════════
+// STREAK
+// ══════════════════════════════════════════════════════
+function updateStreak(){
+  const today = new Date().toDateString();
+  if(S.lastVisit===today) return;
+  const yest = new Date(Date.now()-86400000).toDateString();
+  S.streak = S.lastVisit===yest ? (S.streak||0)+1 : 1;
+  S.lastVisit = today;
+  save();
+}
+
+// ══════════════════════════════════════════════════════
+// HOME
+// ══════════════════════════════════════════════════════
+function initHome(){
+  computeUnlocked();
+  updateStreak();
+  const { user, completed, diary, streak } = S;
+  document.getElementById('user-avatar').textContent = user.name[0].toUpperCase();
+  document.getElementById('user-name-pill').textContent = user.name;
+  document.getElementById('streak-text').textContent = `🔥 ${streak} ${streak===1?'día':'días'}`;
+  const h = new Date().getHours();
+  document.getElementById('hero-greeting').textContent = `${h<12?'Buenos días':h<18?'Buenas tardes':'Buenas noches'}, ${user.name} ✦`;
+  updateStats();
+  updateProgress();
+  renderUnlockBanner();
+  renderGrid();
+  renderGloss();
+}
+
+function updateStats(){
+  document.getElementById('stat-done').textContent = S.completed.length;
+  document.getElementById('stat-unlock').textContent = S.unlockedCount;
+  document.getElementById('stat-diary').textContent = Object.keys(S.diary).filter(k=>S.diary[k]&&S.diary[k].trim()).length;
+}
+
+function updateProgress(){
+  const d=S.completed.length, t=SITS.length;
+  document.getElementById('progress-count').textContent = `${d} de ${t}`;
+  document.getElementById('progress-bar').style.width = Math.round(d/t*100)+'%';
+}
+
+function renderUnlockBanner(){
+  const banner = document.getElementById('unlock-banner');
+  // Find the next locked sit
+  const nextLocked = SITS.find(s => !isUnlocked(s.id));
+  if(!nextLocked){ banner.style.display='none'; return; }
+  const prevSit = SITS.find(s=>s.id===nextLocked.id-1);
+  const prevDone = prevSit && isCompleted(prevSit.id);
+  const days = daysSinceStart();
+  const daysNeeded = nextLocked.id - 1;
+
+  let txt, sub;
+  if(!prevDone){
+    txt = `Completa la situación ${prevSit.id} para continuar`;
+    sub = `«${prevSit.title.substring(0,50)}…»`;
+  } else {
+    const daysLeft = daysNeeded - days;
+    txt = `Situación ${nextLocked.id} — ${nextLocked.title.substring(0,45)}…`;
+    sub = daysLeft<=0 ? 'Disponible mañana.' : `Disponible en ${daysLeft} ${daysLeft===1?'día':'días'}.`;
+  }
+  document.getElementById('unlock-text').textContent = txt;
+  document.getElementById('unlock-sub').textContent = sub;
+  banner.style.display = 'block';
+}
+
+function renderGrid(filter){
+  const grid = document.getElementById('situations-grid');
+  const sits = filter ? SITS.filter(s=>s.title.toLowerCase().includes(filter)||s.scene.toLowerCase().includes(filter)||s.tags.some(t=>t.includes(filter))) : SITS;
+  const dLabel={frequent:'Frecuente',intense:'Intensa',complex:'Compleja'};
+  const dClass={frequent:'diff-frequent',intense:'diff-intense',complex:'diff-complex'};
+
+  grid.innerHTML = sits.map((sit,i)=>{
+    const unlocked = isUnlocked(sit.id);
+    const completed = isCompleted(sit.id);
+    const hasDiary = S.diary[sit.id]&&S.diary[sit.id].trim();
+    let cardClass = 'situation-card';
+    if(completed) cardClass += ' completed';
+    else if(unlocked) cardClass += ' unlocked';
+    else cardClass += ' locked';
+
+    const lockIcon = !unlocked ? `<div class="lock-overlay">🔒</div>` : '';
+    const daysNeeded = sit.id - 1;
+    const days = daysSinceStart();
+
+    let statusHtml = '';
+    if(completed){
+      statusHtml = `<div class="card-status"><span class="status-done">✓ Completada</span>${hasDiary?'<span class="status-diary">✏ Diario</span>':''}</div>`;
+    } else if(unlocked){
+      statusHtml = hasDiary ? `<div class="card-status"><span class="status-diary">✏ Diario</span></div>` : '';
+    } else {
+      // locked — show what's needed
+      const prevDone = sit.id===1 ? true : isCompleted(sit.id-1);
+      let reason = '';
+      if(!prevDone) reason = `<span class="status-locked">🔒 Completa la situación ${sit.id-1}</span>`;
+      else {
+        const dLeft = daysNeeded - days;
+        reason = `<span class="status-locked">🔒 Disponible en ${dLeft<=0?'mañana':(dLeft===1?'1 día':`${dLeft} días`)}</span>`;
+      }
+      statusHtml = `<div class="card-status">${reason}</div>`;
+    }
+
+    const clickAttr = unlocked ? `onclick="openSit(${sit.id})"` : `onclick="clickLocked(${sit.id})"`;
+
+    return `<div class="${cardClass} fade-up fade-up-${Math.min(i+1,6)}" ${clickAttr}>
+      ${lockIcon}
+      <div class="card-emoji-wrap">${sit.emoji}</div>
+      <div class="card-body">
+        <div class="card-meta">
+          <span class="card-number">Situación ${sit.id}</span>
+          <span class="card-difficulty ${dClass[sit.difficulty]}">${dLabel[sit.difficulty]}</span>
+        </div>
+        <div class="card-title">${sit.title}</div>
+        <div class="card-desc">${sit.scene.substring(0,72)}...</div>
+        ${statusHtml}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function clickLocked(id){
+  const sit = SITS.find(s=>s.id===id);
+  const prevDone = id===1 ? true : isCompleted(id-1);
+  if(!prevDone) toast(`Completa la situación ${id-1} primero.`);
+  else toast(`Esta situación se desbloquea mañana. ¡Vuelve pronto!`);
+}
+
+function filterSituations(){
+  const q = document.getElementById('search-input').value.toLowerCase().trim();
+  renderGrid(q||null);
+}
+
+// ══════════════════════════════════════════════════════
+// SITUATION DETAIL
+// ══════════════════════════════════════════════════════
+function openSit(id){
+  if(!isUnlocked(id)){ clickLocked(id); return; }
+  S.currentSit = id;
+  S.prevScreen = 'screen-home';
+  renderSit(id);
+  showScreen('screen-situation');
+}
+
+function renderSit(id){
+  const sit = SITS.find(s=>s.id===id);
+  const done = isCompleted(id);
+  const dCol={frequent:'rgba(46,139,87,.25)',intense:'rgba(176,58,46,.25)',complex:'rgba(107,63,160,.25)'};
+  const dTxt={frequent:'#2E8B57',intense:'#B03A2E',complex:'#6B3FA0'};
+  const dLbl={frequent:'Frecuente',intense:'Intensa',complex:'Compleja'};
+
+  // dots
+  document.getElementById('detail-dots').innerHTML = SITS.map(s=>{
+    let cls='dot';
+    if(s.id===id) cls+=' active';
+    else if(isCompleted(s.id)) cls+=' done-dot';
+    else if(!isUnlocked(s.id)) cls+=' locked-dot';
+    return `<div class="${cls}"></div>`;
+  }).join('');
+
+  const dv = S.diary[id]||'';
+
+  // next-unlock hint (shown after completing)
+  const nextSit = SITS.find(s=>s.id===id+1);
+  const hintHtml = nextSit ? `<div class="next-unlock-hint" id="unlock-hint">
+    ✦ ¡Situación completada! <strong>${done?'Ya tienes acceso':'Mañana se desbloqueará'}</strong> la situación ${nextSit.id}: «${nextSit.title.substring(0,40)}…»
+  </div>` : '';
+
+  document.getElementById('detail-content').innerHTML = `
+    <div class="situation-hero" data-emoji="${sit.emoji}">
+      <div class="sit-meta">
+        <span class="sit-num">Situación ${sit.id} de ${SITS.length}</span>
+        <span class="sit-diff" style="background:${dCol[sit.difficulty]};color:${dTxt[sit.difficulty]}">${dLbl[sit.difficulty]}</span>
+      </div>
+      <h1 class="sit-title">${sit.title}</h1>
+      <p class="sit-scene">${sit.scene}</p>
+    </div>
+
+    <div class="content-block fade-up fade-up-1">
+      <div class="block-label"><div class="block-icon feel">😰</div><span class="block-title feel">Lo que vas a sentir</span></div>
+      <p class="block-text">${sit.feel}</p>
+    </div>
+    <div class="content-block fade-up fade-up-2">
+      <div class="block-label"><div class="block-icon avoid">✗</div><span class="block-title avoid">Lo que no funciona</span></div>
+      ${sit.avoid.map(a=>`<div class="list-item"><span class="list-marker x">✗</span><span class="block-text">${a}</span></div>`).join('')}
+    </div>
+    <div class="content-block fade-up fade-up-3">
+      <div class="block-label"><div class="block-icon say">✓</div><span class="block-title say">Lo que sí funciona</span></div>
+      ${sit.say.map(a=>`<div class="list-item"><span class="list-marker check">✓</span><span class="block-text">${a}</span></div>`).join('')}
+    </div>
+    <div class="content-block fade-up fade-up-4">
+      <div class="block-label"><div class="block-icon why">💡</div><span class="block-title why">Por qué funciona</span></div>
+      <p class="block-text">${sit.why}</p>
+    </div>
+    <div class="content-block fade-up fade-up-5">
+      <div class="block-label"><div class="block-icon phrase">💬</div><span class="block-title phrase">Frases que puedes usar</span></div>
+      <div class="phrases-grid">${sit.phrases.map(p=>`<div class="phrase-item"><span class="phrase-text">${p}</span></div>`).join('')}</div>
+    </div>
+    ${sit.fullAnswer?`<div class="full-answer-block fade-up">
+      <div class="full-answer-label">🎭 Cómo respondería en la práctica</div>
+      ${sit.fullAnswer.map(s=>`
+        <div class="full-answer-scenario">${s.label}</div>
+        <div class="full-answer-bubble them">💬 ${s.them}</div>
+        <div class="full-answer-bubble">→ ${s.you}</div>
+        <div class="full-answer-note">💡 ${s.note}</div>
+      `).join('')}
+    </div>`:''}
+    ${sit.argument?`<div class="argument-block fade-up">
+      <div class="block-label" style="margin-bottom:16px"><div class="block-icon why">🧠</div><span class="block-title why">${sit.argument.title}</span></div>
+      ${sit.argument.steps.map(s=>`<div class="argument-step"><div class="argument-num">${s.n}</div><div class="argument-text">${s.text}</div></div>`).join('')}
+      <div class="argument-conclusion">↳ ${sit.argument.conclusion}</div>
+    </div>`:''}
+    ${sit.story?`<div class="story-block fade-up"><div class="story-label">📣 Historia real (anónima)</div><p class="story-text">${sit.story.text}</p><p class="story-author">— ${sit.story.author}</p></div>`:''}
+    <div class="verse-block fade-up"><p class="verse-text">"${sit.verse.text}"</p><p class="verse-ref">— ${sit.verse.ref}</p></div>
+    <div class="content-block fade-up">
+      <div class="block-label"><div class="block-icon read">📚</div><span class="block-title read">Para profundizar</span></div>
+      ${sit.readings.map(r=>`<div class="reading-item"><span class="reading-type ${r.type}">${r.type==='book'?'Libro':'Video'}</span><div><div class="reading-title">${r.title}</div><div class="reading-desc">${r.desc}</div></div></div>`).join('')}
+    </div>
+    <div class="content-block fade-up">
+      <div class="block-label"><div class="block-icon deeper">🔍</div><span class="block-title deeper">Para reflexionar</span></div>
+      ${sit.deeper.map((q,i)=>`<div class="deeper-item"><span class="deeper-num">${i+1}.</span>${q}</div>`).join('')}
+    </div>
+    <div class="diary-block fade-up">
+      <div class="diary-label">✏️ Mi diario — ¿Cómo me pasó esto a mí?</div>
+      <textarea class="diary-textarea" id="diary-${id}" placeholder="Escribe lo que viviste, cómo te sentiste, qué hiciste...">${dv}</textarea>
+      <button class="diary-save" onclick="saveDiary(${id})">Guardar nota</button>
+      <div class="diary-saved" id="diary-saved-${id}">✓ Guardado</div>
+    </div>
+    <button class="mark-done-btn${done?' done':''}" id="mark-done-btn" onclick="toggleDone(${id})">
+      ${done?'✓ Completada — toca para desmarcar':'Marcar como completada'}
+    </button>
+    ${hintHtml}
+    <div class="nav-btns">
+      <button class="nav-btn" onclick="navSit(${id-1})" ${id===1?'disabled':''}>← Anterior</button>
+      <button class="nav-btn" onclick="navSit(${id+1})" ${id===SITS.length||!isUnlocked(id+1)?'disabled':''}>Siguiente →</button>
+    </div>`;
+
+  // show hint if already done
+  if(done){
+    const hint=document.getElementById('unlock-hint');
+    if(hint) hint.style.display='block';
+  }
+}
+
+function navSit(id){
+  if(id<1||id>SITS.length) return;
+  if(!isUnlocked(id)){ clickLocked(id); return; }
+  S.currentSit=id; renderSit(id); window.scrollTo(0,0);
+}
+
+function toggleDone(id){
+  if(isCompleted(id)){
+    S.completed = S.completed.filter(c=>c!==id);
+    toast('Desmarcada.');
+  } else {
+    S.completed.push(id);
+    toast('¡Situación completada! ✦');
+    // show hint
+    setTimeout(()=>{
+      const hint=document.getElementById('unlock-hint');
+      if(hint) hint.style.display='block';
+    },200);
+  }
+  computeUnlocked();
+  save();
+  updateProgress();
+  updateStats();
+  renderGrid();
+  renderUnlockBanner();
+  renderSit(id);
+}
+
+function saveDiary(id){
+  const val = document.getElementById(`diary-${id}`).value;
+  S.diary[id] = val;
+  save();
+  updateStats();
+  const el=document.getElementById(`diary-saved-${id}`);
+  el.style.display='block';
+  setTimeout(()=>el.style.display='none',2000);
+  toast('Nota guardada ✏️');
+}
+
+// ══════════════════════════════════════════════════════
+// DIARY VIEWER
+// ══════════════════════════════════════════════════════
+function openDiaryViewer(){
+  const entries = SITS.filter(s=>S.diary[s.id]&&S.diary[s.id].trim());
+  const content = document.getElementById('diary-viewer-content');
+  if(!entries.length){
+    content.innerHTML='<p style="color:var(--gray);font-size:14px;text-align:center;padding:20px 0">Aún no escribiste nada en tu diario. Completa una situación y agrega tus notas.</p>';
+  } else {
+    content.innerHTML = entries.map(s=>`
+      <div class="diary-viewer-entry">
+        <div class="diary-viewer-sit">${s.emoji} Situación ${s.id} — ${s.title}</div>
+        <div class="diary-viewer-text">${S.diary[s.id]}</div>
+      </div>`).join('');
+  }
+  openModal('modal-diary');
+}
+
+
+
+// ══════════════════════════════════════════════════════
+// EXTRAS
+// ══════════════════════════════════════════════════════
+function showExtra(type){
+  S.prevScreen='screen-home';
+  const d=EXTRAS[type];
+  document.getElementById('extra-content').innerHTML=`
+    <div class="extra-hero" style="background:linear-gradient(135deg,${d.color},${d.color}CC)">
+      <div style="font-size:38px;margin-bottom:9px">${d.icon}</div>
+      <h2>${d.title}</h2><p>${d.subtitle}</p>
+    </div>
+    ${d.sections.map(s=>`
+      <div class="content-block fade-up">
+        <div class="block-label"><span class="block-title why">${s.title}</span></div>
+        ${s.items.map(i=>`<div class="list-item"><span class="list-marker gold">✦</span><span class="block-text">${i}</span></div>`).join('')}
+      </div>`).join('')}`;
+  showScreen('screen-extra');
+}
+
+// ══════════════════════════════════════════════════════
+// GLOSSARY
+// ══════════════════════════════════════════════════════
+function renderGloss(){
+  document.getElementById('gloss-list').innerHTML=GLOSS.map((g,i)=>`
+    <div class="gloss-item" data-term="${g.term.toLowerCase()}">
+      <div class="gloss-term" onclick="toggleGloss(${i})">${g.term}<span style="color:var(--gold);font-size:13px;font-family:sans-serif">▾</span></div>
+      <div class="gloss-def" id="gd-${i}">${g.def}</div>
+    </div>`).join('');
+}
+function toggleGloss(i){ document.getElementById(`gd-${i}`).classList.toggle('open'); }
+function filterGloss(){ const q=document.getElementById('gloss-input').value.toLowerCase(); document.querySelectorAll('.gloss-item').forEach(el=>el.style.display=el.dataset.term.includes(q)?'':'none'); }
+
+// ══════════════════════════════════════════════════════
+// INIT
+// ══════════════════════════════════════════════════════
+(function(){
+  if(load()&&S.user){ initHome(); showScreen('screen-home'); }
+  else { showScreen('screen-welcome'); }
+})();
+</script>
+</body>
+</html>
